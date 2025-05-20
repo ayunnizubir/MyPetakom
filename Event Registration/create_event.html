@@ -1,115 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Create Event</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <img src="petakom_logo.png" alt="PETAKOM Logo"><br><br>
-        <h2>MyPetakom</h2>
-        <ul>
-            <li><strong>Event Advisor</strong></li>
-            <li><a href="#">Dashboard Event Advisor</a></li>
-            <li><a href="create_event.html">Create Event</a></li>
-            <li><a href="event_list.php">Event List</a></li>
-            <li><a href="#">Committee</a></li>
-            <li><a href="merit_applications.php">Merit Application</a></li>
-            <li><a href="#">QR Codes</a></li>
-        </ul>
+      <img src="petakom_logo.png" alt="PETAKOM Logo" /><br /><br />
+      <h2>MyPetakom</h2>
+      <ul>
+        <li><strong>Event Advisor</strong></li>
+        <li><a href="#">Dashboard Event Advisor</a></li>
+        <li><a href="create_event.html">Create Event</a></li>
+        <li><a href="event_list.php">Event List</a></li>
+        <li><a href="#">Committee</a></li>
+        <li><a href="merit_applications.php">Merit Application</a></li>
+        <li><a href="#">QR Codes</a></li>
+      </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main">
-        <div class="header">
-            <h1>Create Event</h1>
-            <div class="profile">
-                <div class="profile-icon">👤</div>
-                <span>User's Name</span>
-                <button onclick="alert('Signed out')">Sign Out</button>
-            </div>
+      <div class="header">
+        <h1>Create Event</h1>
+        <div class="profile">
+          <div class="profile-icon">👤</div>
+          <span>User's Name</span>
+          <button onclick="alert('Signed out')">Sign Out</button>
         </div>
+      </div>
 
-        <div class="container">
-            <h2>Event Details</h2>
-            <form action="submit_event.php" method="POST" enctype="multipart/form-data">
-                <label>Event Name</label>
-                <input type="text" name="event_name" required>
+      <div class="container">
+        <h2>Event Details</h2>
+        <form
+          action="submit_event.php"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <label>Event Name</label>
+          <input type="text" name="event_name" required />
 
-                <label>Date</label>
-                <input type="date" name="date" required>
+          <label>Date</label>
+          <input type="date" name="date" required />
 
-                <label>Time</label>
-                <div class="row">
-                    <input type="number" name="hour" min="1" max="12" placeholder="Hour" required>
-                    <input type="number" name="minute" min="0" max="59" placeholder="Minute" required>
-                    <select name="ampm" required>
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                    </select>
-                </div>
+          <label>Time</label>
+          <div class="row">
+            <input
+              type="number"
+              name="hour"
+              min="1"
+              max="12"
+              placeholder="Hour"
+              required
+            />
+            <input
+              type="number"
+              name="minute"
+              min="0"
+              max="59"
+              placeholder="Minute"
+              required
+            />
+            <select name="ampm" required>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+            </select>
+          </div>
 
-                <!-- Hidden input to store formatted time -->
-                <input type="hidden" name="formatted_time" id="formatted_time">
-                <p id="time_preview" style="margin-top:10px; color: green;"></p>
+          <!-- Hidden input to store formatted time -->
+          <input type="hidden" name="formatted_time" id="formatted_time" />
+          <p id="time_preview" style="margin-top: 10px; color: green"></p>
 
-                <label>Location</label>
-                <select name="location" required>
-                    <option value="">Select Location</option>
-                    <option>Astaka</option>
-                    <option>DK1</option>
-                    <option>DK2</option>
-                    <option>Online</option>
-                </select>
+          <label>Location</label>
+          <select name="location" required>
+            <option value="">Select Location</option>
+            <option>Astaka</option>
+            <option>DK1</option>
+            <option>DK2</option>
+            <option>Online</option>
+          </select>
 
-                <label>Description</label>
-                <textarea name="description" rows="4" placeholder="Enter text"></textarea>
+          <label>Description</label>
+          <textarea
+            name="description"
+            rows="4"
+            placeholder="Enter text"
+          ></textarea>
 
-                <label>Upload Approval Letter (pdf,.doc,.docx)</label>
-                <input type="file" name="approval_letter" accept=".pdf,.doc,.docx" required>
+          <label>Upload Approval Letter (pdf,.doc,.docx)</label>
+          <input
+            type="file"
+            name="approval_letter"
+            accept=".pdf,.doc,.docx"
+            required
+          />
 
-                <div class="btn-group">
-                    <button type="reset">Cancel</button>
-                    <button type="submit">Submit</button>
-                </div>
-            </form>
-        </div>
+          <div class="btn-group">
+            <button type="reset">Cancel</button>
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-        const hourInput = document.querySelector('input[name="hour"]');
-        const minuteInput = document.querySelector('input[name="minute"]');
-        const ampmSelect = document.querySelector('select[name="ampm"]');
-        const formattedTimeInput = document.getElementById('formatted_time');
-        const timePreview = document.getElementById('time_preview');
-        const form = document.querySelector('form');
+      const hourInput = document.querySelector('input[name="hour"]');
+      const minuteInput = document.querySelector('input[name="minute"]');
+      const ampmSelect = document.querySelector('select[name="ampm"]');
+      const formattedTimeInput = document.getElementById("formatted_time");
+      const timePreview = document.getElementById("time_preview");
+      const form = document.querySelector("form");
 
-        function formatTime() {
-            let hour = parseInt(hourInput.value, 10);
-            let minute = parseInt(minuteInput.value, 10);
-            let ampm = ampmSelect.value;
+      function formatTime() {
+        let hour = parseInt(hourInput.value, 10);
+        let minute = parseInt(minuteInput.value, 10);
+        let ampm = ampmSelect.value;
 
-            if (isNaN(hour) || isNaN(minute)) {
-                timePreview.textContent = '';
-                return;
-            }
-
-            if (hour < 1 || hour > 12 || minute < 0 || minute > 59) {
-                timePreview.textContent = 'Invalid time';
-                return;
-            }
-
-            const formatted = `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
-            formattedTimeInput.value = formatted;
-            timePreview.textContent = `Selected Time: ${formatted}`;
+        if (isNaN(hour) || isNaN(minute)) {
+          timePreview.textContent = "";
+          return;
         }
 
-        hourInput.addEventListener('input', formatTime);
-        minuteInput.addEventListener('input', formatTime);
-        ampmSelect.addEventListener('change', formatTime);
-        form.addEventListener('submit', formatTime);
+        if (hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+          timePreview.textContent = "Invalid time";
+          return;
+        }
+
+        const formatted = `${hour}:${minute
+          .toString()
+          .padStart(2, "0")} ${ampm}`;
+        formattedTimeInput.value = formatted;
+        timePreview.textContent = `Selected Time: ${formatted}`;
+      }
+
+      hourInput.addEventListener("input", formatTime);
+      minuteInput.addEventListener("input", formatTime);
+      ampmSelect.addEventListener("change", formatTime);
+      form.addEventListener("submit", formatTime);
     </script>
-</body>
+  </body>
 </html>
