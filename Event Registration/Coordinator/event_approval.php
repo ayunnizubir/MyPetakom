@@ -68,15 +68,18 @@ $result = $conn->query("SELECT * FROM events");
                             <?php endif; ?>
                         </td>
                         <td>
-                            <form action="update_status.php" method="POST">
-                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                <select name="status" required>
-                                    <option value="">Select</option>
-                                    <option value="Approved">Approve</option>
-                                    <option value="Rejected">Reject</option>
-                                </select>
-                                <button type="submit">Update</button>
-                            </form>
+                            --- event_approval.php
+                        <form action="update_status.php" method="POST">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+-                           <select name="approved_status" required>
+                                <option value="">Select</option>
+                                <option value="Approved">Approve</option>
+                                <option value="Rejected">Reject</option>
+                            </select>
+
+                            <button type="submit">Update</button>
+                        </form>
+
                         </td>
                     </tr>
                 <?php endwhile; ?>

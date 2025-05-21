@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Fetch only upcoming events
+// ✅ Correct filter:
 $eventList = $conn->query("SELECT event_name FROM events WHERE status = 'Upcoming' AND approved_status = 'Approved'");
 
 
