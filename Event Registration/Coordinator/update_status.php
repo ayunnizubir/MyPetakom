@@ -1,27 +1,20 @@
 <?php
 $conn = new mysqli("localhost", "root", "", "db_registration");
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id = $_POST['id'];
+    $status = $_POST['status'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && isset($_POST['approved_status'])) {
-    $id = intval($_POST['id']);
-    $approved_status = $_POST['approved_status']; // This comes from your dropdown
+    $sql = "UPDATE events SET status = '$status' WHERE id = $id";
 
-    // Use the approved_status value to update the 'status' field only
-    if ($approved_status === 'Approved' || $approved_status === 'Rejected') {
-        $stmt = $conn->prepare("UPDATE events SET status = ? WHERE id = ?");
-        $stmt->bind_param("si", $approved_status, $id);
-        $stmt->execute();
-        $stmt->close();
-
-        header("Location: event_approval.php");
-        exit();
+    if ($conn->query($sql) === TRUE) {
+        header("refresh:2;url=event_approval.php");
+        echo "<h3>✅ Event status updated to '$status'! Redirecting...</h3>";
     } else {
-        echo "Invalid approval status.";
+        header("refresh:3;url=event_approval.php");
+        echo "<h3>❌ Error updating status: " . $conn->error . "<br>Redirecting...</h3>";
     }
-} else {
-    echo "Invalid request.";
+
+    $conn->close();
 }
 ?>

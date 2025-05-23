@@ -1,48 +1,36 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$dbname = "db_registration";
+$conn = new mysqli("localhost", "root", "", "db_registration");
 
-$conn = new mysqli($host, $user, $password, $dbname);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $event_name = $_POST['event_name'];
+    $event_date = $_POST['event_date'];
+    $event_time = $_POST['event_time'];
+    $location = $_POST['location'];
+    $description = $_POST['description'];
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    $upload_dir = "uploads/";
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    $approval_letter_path = "";
+    if (isset($_FILES['approval_letter']) && $_FILES['approval_letter']['error'] === UPLOAD_ERR_OK) {
+        $filename = basename($_FILES["approval_letter"]["name"]);
+        $approval_letter_path = $upload_dir . $filename;
+        move_uploaded_file($_FILES["approval_letter"]["tmp_name"], $approval_letter_path);
+    }
+
+    $sql = "INSERT INTO events (event_name, event_date, event_time, location, description, approval_letter, status)
+            VALUES ('$event_name', '$event_date', '$event_time', '$location', '$description', '$approval_letter_path', 'Upcoming')";
+
+    if ($conn->query($sql) === TRUE) {
+        header("refresh:2;url=create_event.html");
+        echo "<h3>✅ New event created successfully! Redirecting...</h3>";
+    } else {
+        header("refresh:3;url=create_event.html");
+        echo "<h3>❌ Error: " . $conn->error . "<br>Redirecting...</h3>";
+    }
+
+    $conn->close();
 }
-
-$event_name = $_POST['event_name'];
-$date = $_POST['date'];
-$hour = $_POST['hour'];
-$minute = $_POST['minute'];
-$ampm = $_POST['ampm'];
-$event_time = sprintf("%02d:%02d %s", $hour, $minute, $ampm);
-$location = $_POST['location'];
-$description = $_POST['description'];
-
-// Handle file upload
-$upload_dir = "uploads/";
-if (!is_dir($upload_dir)) {
-    mkdir($upload_dir, 0777, true);
-}
-$file_path = $upload_dir . basename($_FILES["approval_letter"]["name"]);
-move_uploaded_file($_FILES["approval_letter"]["tmp_name"], $file_path);
-
-// Insert event
-$status = 'Pending'; // ✅ force status to Pending
-
-$sql = "INSERT INTO events (event_name, date, time, location, description, approval_letter, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-// then bind and execute with $status included
-$stmt->bind_param("sssssss", $event_name, $date, $time, $location, $description, $file_path, $status);
-
-
-if ($conn->query($sql) === TRUE) {
-    header("Location: event_list.php");
-    exit();
-} else {
-    echo "Error: " . $conn->error;
-}
-
-$conn->close();
 ?>
