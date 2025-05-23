@@ -28,8 +28,14 @@ $file_path = $upload_dir . basename($_FILES["approval_letter"]["name"]);
 move_uploaded_file($_FILES["approval_letter"]["tmp_name"], $file_path);
 
 // Insert event
-$sql = "INSERT INTO events (event_name, event_date, event_time, location, description, approval_letter)
-        VALUES ('$event_name', '$date', '$event_time', '$location', '$description', '$file_path')";
+$status = 'Pending'; // ✅ force status to Pending
+
+$sql = "INSERT INTO events (event_name, date, time, location, description, approval_letter, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+// then bind and execute with $status included
+$stmt->bind_param("sssssss", $event_name, $date, $time, $location, $description, $file_path, $status);
+
 
 if ($conn->query($sql) === TRUE) {
     header("Location: event_list.php");
