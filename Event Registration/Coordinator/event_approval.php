@@ -1,92 +1,86 @@
 <?php
 $conn = new mysqli("localhost", "root", "", "db_registration");
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-$result = $conn->query("SELECT * FROM events WHERE status = 'Pending'");
+$result = $conn->query("SELECT * FROM events WHERE status = 'Upcoming'");
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Event Approval - PETAKOM Coordinator</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <title>Approve Events</title>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-
-<div class="sidebar">
-    <img src="../../login/petakom_logo.png" alt="PETAKOM Logo">
-    <h2>MyPetakom</h2>
-    <ul>
-        <li><strong>PETAKOM Coordinator</strong></li>
-        <li><a href="event_approval.php" class="active">Approve Events</a></li>
-    </ul>
-</div>
-
-<div class="main">
-    <div class="header">
-        <h1>Event Approval</h1>
-        <div class="profile">
-            <div class="profile-icon">👤</div>
-            <span>Coordinator</span>
-            <button onclick="alert('Signed out')">Sign Out</button>
-        </div>
+    <!-- Coordinator Sidebar -->
+    <div class="sidebar">
+        <img src="../petakom_logo.png" alt="PETAKOM Logo">
+        <h2>Coordinator Panel</h2>
+        <ul>
+            <li><a href="event_approval.php">Approve Events</a></li>
+            <li><a href="#">Merit Records</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
     </div>
 
-    <div class="container">
-        <h2>Pending Event Submissions</h2>
-        <table>
-            <thead>
+    <!-- Main Content -->
+    <div class="main">
+        <div class="header">
+            <h1>Approve Events</h1>
+            <div class="profile">
+                <div class="profile-icon">👤</div>
+                <span>Coordinator</span>
+                <button>Sign Out</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2>Pending Approvals</h2>
+            <table>
                 <tr>
+                    <th>No</th>
                     <th>Event Name</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Location</th>
                     <th>Description</th>
-                    <th>Status</th>
                     <th>Approval Letter</th>
                     <th>Action</th>
                 </tr>
-            </thead>
-            <tbody>
-                <?php while($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['event_name']) ?></td>
-                        <td><?= htmlspecialchars($row['event_date']) ?></td>
-                        <td><?= htmlspecialchars($row['event_time']) ?></td>
-                        <td><?= htmlspecialchars($row['location']) ?></td>
-                        <td><?= htmlspecialchars($row['description']) ?></td>
-                        <td><?= htmlspecialchars($row['status']) ?></td>
-                        <td>
-                            <?php if (!empty($row['approval_letter'])): ?>
-                                <a href="<?= htmlspecialchars($row['approval_letter']) ?>" target="_blank">View</a>
-                            <?php else: ?>
-                                No File
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            --- event_approval.php
-                        <form action="update_status.php" method="POST">
+                <?php
+                $i = 1;
+                while ($row = $result->fetch_assoc()):
+                ?>
+                <tr>
+                    <td><?= $i++ ?></td>
+                    <td><?= $row['event_name'] ?></td>
+                    <td><?= $row['event_date'] ?></td>
+                    <td><?= $row['event_time'] ?></td>
+                    <td><?= $row['location'] ?></td>
+                    <td><?= $row['description'] ?></td>
+                    <td>
+                        <?php if (!empty($row['approval_letter'])): ?>
+                            <a href="../<?= $row['approval_letter'] ?>" target="_blank">View Letter</a>
+                        <?php else: ?>
+                            No Letter
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <form action="update_status.php" method="POST" style="display:inline;">
                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
--                           <select name="approved_status" required>
-                                <option value="">Select</option>
-                                <option value="Approved">Approve</option>
-                                <option value="Rejected">Reject</option>
-                            </select>
-
-                            <button type="submit">Update</button>
+                            <input type="hidden" name="status" value="Approved">
+                            <button type="submit" class="qr">Approve</button>
                         </form>
-
-                        </td>
-                    </tr>
+                        <form action="update_status.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                            <input type="hidden" name="status" value="Rejected">
+                            <button type="submit" class="delete">Reject</button>
+                        </form>
+                    </td>
+                </tr>
                 <?php endwhile; ?>
-            </tbody>
-        </table>
+            </table>
+        </div>
     </div>
-</div>
-
 </body>
 </html>
