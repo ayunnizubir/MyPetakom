@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$dbname = "db_registration"; // Updated to match your DB
+$dbname = "db_registration";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {
@@ -17,18 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status = "Pending";
     $date = date("Y-m-d");
 
-    // Ensure applications table exists
-    $sql = "INSERT INTO merit (event_name, type, status, applied_date)
-            VALUES ('$event', '$type', '$status', '$date')";
-    $conn->query($sql);
+    $stmt = $conn->prepare("INSERT INTO merit (event_name, type, status, applied_date) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $event, $type, $status, $date);
+    $stmt->execute();
+    $stmt->close();
 }
 
-// Fetch only upcoming events
-// ✅ Correct filter:
+// Fetch approved events
 $eventList = $conn->query("SELECT event_name FROM events WHERE status = 'Approved'");
-
-
-// Fetch previous merit applications
+if (!$eventList) {
+    die("Event query failed: " . $conn->error);
+} elseif ($eventList->num_rows == 0) {
+    die("No events found with status = 'Approved'");
+}
 $history = $conn->query("SELECT * FROM merit");
 ?>
 
@@ -65,16 +66,21 @@ $history = $conn->query("SELECT * FROM merit");
     </div>
 
     <div class="container">
-        <h2>Merit Application</h2>
-        <p>Apply for merit award for events</p>
+        <h2>Apply for Merit</h2>
 
         <form method="POST">
             <label for="event">Event Name</label>
             <select id="event" name="event" required>
-                <option value="">Select Event</option>
-                <?php while ($row = $eventList->fetch_assoc()): ?>
-                    <option value="<?= $row['event_name'] ?>"><?= $row['event_name'] ?></option>
-                <?php endwhile; ?>
+                <option value="">-- Select Event --</option>
+                <?php
+                if ($eventList && $eventList->num_rows > 0) {
+                    while ($row = $eventList->fetch_assoc()) {
+                        echo "<option value='" . htmlspecialchars($row['event_name']) . "'>" . htmlspecialchars($row['event_name']) . "</option>";
+                    }
+                } else {
+                    echo "<option disabled>No approved events found</option>";
+                }
+                ?>
             </select>
 
             <label>Application Type</label><br>
@@ -100,14 +106,18 @@ $history = $conn->query("SELECT * FROM merit");
                 </tr>
             </thead>
             <tbody>
-                <?php while ($app = $history->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= $app['event_name'] ?></td>
-                        <td><?= $app['type'] ?></td>
-                        <td><?= $app['status'] ?></td>
-                        <td><?= $app['applied_date'] ?></td>
-                    </tr>
-                <?php endwhile; ?>
+                <?php if ($history && $history->num_rows > 0): ?>
+                    <?php while ($app = $history->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($app['event_name']) ?></td>
+                            <td><?= htmlspecialchars($app['type']) ?></td>
+                            <td><?= htmlspecialchars($app['status']) ?></td>
+                            <td><?= htmlspecialchars($app['applied_date']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr><td colspan="4">No merit applications found.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
