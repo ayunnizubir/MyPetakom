@@ -130,3 +130,17 @@ button.delete {
 button.qr {
     background-color: #d4ffd4;
 }
+.radio-table-layout {
+    margin-top: 8px;
+    margin-left: 0;
+    border-collapse: collapse;
+}
+.radio-table-layout td {
+    padding: 8px 0;
+    font-size: 16px;
+    vertical-align: middle;
+}
+.radio-table-layout input[type="radio"] {
+    transform: scale(1.2);
+    margin-left: 20px;
+}
