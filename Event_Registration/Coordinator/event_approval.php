@@ -11,12 +11,16 @@ $result = $conn->query("SELECT * FROM events WHERE status = 'Pending'");
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+<<<<<<< HEAD
     <!-- Coordinator Sidebar -->
+=======
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
     <div class="sidebar">
         <img src="../css/petakom_logo.png" alt="PETAKOM Logo">
         <h2>Coordinator Panel</h2>
         <ul>
             <li><a href="event_approval.php">Approve Events</a></li>
+<<<<<<< HEAD
             <li><a href="#">Merit Records</a></li>
             <li><a href="#">Reports</a></li>
             <li><a href="#">Logout</a></li>
@@ -24,6 +28,12 @@ $result = $conn->query("SELECT * FROM events WHERE status = 'Pending'");
     </div>
 
     <!-- Main Content -->
+=======
+            <li><a href="../Merit/merit_approval.php">Approve Merits</a></li>
+        </ul>
+    </div>
+
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
     <div class="main">
         <div class="header">
             <h1>Approve Events</h1>

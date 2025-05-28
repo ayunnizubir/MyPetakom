@@ -1,19 +1,31 @@
 <?php
+<<<<<<< HEAD
 // create_event.php — handle the Create Event form submission
 
 // 1) connect
+=======
+
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 $conn = new mysqli("localhost","root","","db_registration");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+<<<<<<< HEAD
 // 2) only accept POST
+=======
+
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: create_event.html');
     exit;
 }
 
+<<<<<<< HEAD
 // 3) grab & sanitize inputs
+=======
+
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 $event_name = $conn->real_escape_string($_POST['event_name']);
 $event_date = $_POST['event_date'];
 $hour       = $_POST['hour'];

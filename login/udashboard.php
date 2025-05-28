@@ -102,6 +102,8 @@ $username = $_SESSION['username'] ?? 'Guest';
     <a href="user_dashboard.php">Dashboard</a>
     <a href="profile_management.php">Profile Management</a>
     <a href="membership_application.php">Membership Application</a>
+    <a href="event_list.php">Event List</a>
+    <a href="event_attendance.php">Event Attendance</a>
 </nav>
 
 <div style="flex-grow: 1;">

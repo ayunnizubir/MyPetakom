@@ -53,7 +53,11 @@ $conn->close();
         </ul>
     </div>
 
+<<<<<<< HEAD
     <!-- Main Content -->
+=======
+    
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
     <div class="main">
         <div class="header">
         <h1>Dashboard Event Advisor</h1>
@@ -96,7 +100,11 @@ $conn->close();
     </div>
 
     <script>
+<<<<<<< HEAD
         // Status Chart
+=======
+        
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         new Chart(document.getElementById('statusChart'), {
         type: 'bar',
         data: {
@@ -112,7 +120,11 @@ $conn->close();
         options: { scales: { y: { beginAtZero: true } } }
         });
 
+<<<<<<< HEAD
         // Facility Chart
+=======
+        
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         new Chart(document.getElementById('facilityChart'), {
         type: 'pie',
         data: {

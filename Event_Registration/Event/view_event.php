@@ -12,7 +12,11 @@ if (isset($_GET['event_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>View Event</title>
+<<<<<<< HEAD
     <link rel="stylesheet" href="css/style.css"> <!-- Optional if you want consistent design -->
+=======
+    <link rel="stylesheet" href="css/style.css"> 
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
     <style>
         body {
             font-family: Arial, sans-serif;

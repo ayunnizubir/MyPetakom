@@ -1,7 +1,14 @@
 <?php
+<<<<<<< HEAD
 // event_list.php — show all events, disable Edit for “Cancelled” and style buttons
 
 $conn   = new mysqli("localhost","root","","db_registration");
+=======
+// Event_Registration/Event/event_list.php
+
+// 1) Fetch all events
+$conn = new mysqli("localhost","root","","db_registration");
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -14,6 +21,7 @@ $conn->close();
     <meta charset="UTF-8">
     <title>Event List</title>
     <link rel="stylesheet" href="../css/style.css">
+<<<<<<< HEAD
     <style>
         /* BUTTON STYLES */
         .btn-create,
@@ -48,6 +56,8 @@ $conn->close();
         padding: 16px;
         }
     </style>
+=======
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 </head>
 <body>
     <!-- Sidebar -->
@@ -70,29 +80,50 @@ $conn->close();
         <div class="profile">
             <div class="profile-icon">👤</div>
             <span>User's Name</span>
+<<<<<<< HEAD
             <button>Sign Oubutton>
         </div>
         </div>
 
         <div class="container">
+=======
+            <button>Sign Out</button>
+        </div>
+    </div>
+
+    <div class="container">
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <a href="create_event.html" class="btn-create">+ Create New Event</a>
 
         <?php if ($result->num_rows === 0): ?>
             <p><em>No events found.</em></p>
         <?php else: ?>
+<<<<<<< HEAD
             <table>
             <thead>
                 <tr>
+=======
+        <table>
+            <thead>
+            <tr>
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                 <th>Name</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Location</th>
                 <th>Status</th>
                 <th>Actions</th>
+<<<<<<< HEAD
                 </tr>
             </thead>
             <tbody>
                 <?php while($ev = $result->fetch_assoc()): ?>
+=======
+            </tr>
+            </thead>
+            <tbody>
+            <?php while($ev = $result->fetch_assoc()): ?>
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                 <tr>
                 <td><?= htmlspecialchars($ev['event_name']) ?></td>
                 <td><?= htmlspecialchars($ev['event_date']) ?></td>
@@ -101,6 +132,7 @@ $conn->close();
                 <td><?= htmlspecialchars($ev['status']) ?></td>
                 <td>
                     <?php if ($ev['status'] === 'Cancelled'): ?>
+<<<<<<< HEAD
                         <button class="btn-edit" disabled>Edit</button>
                     <?php else: ?>
                         <a href="edit_event.php?id=<?= $ev['id'] ?>" class="btn-edit">Edit</a>
@@ -118,5 +150,68 @@ $conn->close();
         <?php endif; ?>
     </div>
     </div>
+=======
+                    <button class="edit" disabled>Edit</button>
+                    <?php else: ?>
+                    <a href="edit_event.php?id=<?= $ev['id'] ?>" class="edit">Edit</a>
+                    <?php endif; ?>
+
+                    <a href="delete_event.php?id=<?= $ev['id'] ?>"
+                    class="delete"
+                    onclick="return confirm('Delete this event?');">
+                    Delete
+                    </a>
+
+
+                <button class="qr" onclick="toggleQR(<?= $ev['id'] ?>)">
+                    QR
+                </button>
+                <div id="qrcode-<?= $ev['id'] ?>" class="qrcode-container"></div>
+                </td>
+            </tr>
+            <?php endwhile; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+
+    const FALLBACK_HOST = '10.62.87.12';
+
+    function toggleQR(eventId) {
+        const holder = document.getElementById('qrcode-' + eventId);
+
+        if (holder.innerHTML.trim() !== '') {
+            holder.innerHTML = '';
+            return;
+        }
+
+        let host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') {
+            host = FALLBACK_HOST;
+        }
+
+        const url = `${window.location.protocol}//${host}/mypetakom/Event_Registration/Event/view_event.php?event_id=${eventId}`;
+
+        QRCode.toCanvas(url, { width: 128 }, (err, canvas) => {
+        if (err) return console.error(err);
+        holder.innerHTML = '';
+        holder.appendChild(canvas);
+
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL();
+        a.download = `event_${eventId}_qr.png`;
+        a.textContent = 'Download QR';
+        a.style.display = 'block';
+        a.style.marginTop = '8px';
+        holder.appendChild(a);
+        });
+    }
+    </script>
+>>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 </body>
 </html>
