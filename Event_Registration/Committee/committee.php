@@ -1,11 +1,6 @@
 <?php
 $conn = new mysqli("localhost", "root", "", "db_registration");
 
-<<<<<<< HEAD
-// Handle form submission
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $event_id = $_POST['event_id'];
     $student_name = $_POST['student_name'];
@@ -93,12 +88,6 @@ $committees = $conn->query("SELECT committee.*, events.event_name FROM committee
 
             <?php if (!empty($success)): ?>
                 <p style="margin-top: 20px; font-weight: bold; color: green;">✅ Committee member added!</p>
-<<<<<<< HEAD
-                <a href="merit_applications.php?event_id=<?= $event_id ?>&type=Committee">
-                    <button style="margin-top: 10px;">Apply for Merit</button>
-                </a>
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
             <?php endif; ?>
 
             <h2 style="margin-top: 40px;">Committee Members</h2>
