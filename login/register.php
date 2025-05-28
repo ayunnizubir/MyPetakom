@@ -19,16 +19,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $phone = $_POST['phone'] ?? '';
     $username = $_POST['username'] ?? '';
     $password = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
+    $usertype = $_POST['usertype'] ?? '';
 
-    $sql = "INSERT INTO users (fullname, matricid, email, phone, username, password)
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO users (fullname, matricid, email, phone, username, password, usertype)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $fullname, $matricid, $email, $phone, $username, $password);
+    $stmt->bind_param("sssssss", $fullname, $matricid, $email, $phone, $username, $password, $usertype);
 
     if ($stmt->execute()) {
         $_SESSION['logged_in'] = true;
         $_SESSION['username'] = $fullname;
-        $_SESSION['role'] = 'user';
+        $_SESSION['role'] = $usertype;
 
         header("Location: udashboard.php");
         exit;
@@ -79,7 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         input[type="text"],
         input[type="email"],
         input[type="password"],
-        input[type="tel"] {
+        input[type="tel"],
+        select {
             width: 95%;
             padding: 8px;
         }
@@ -112,6 +114,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <tr><td><input type="tel" name="phone" placeholder="Phone Number" required></td></tr>
                 <tr><td><input type="text" name="username" placeholder="Username" required></td></tr>
                 <tr><td><input type="password" name="password" placeholder="Password" required></td></tr>
+                <tr><td><select name="usertype" required>
+                    <option value="">Select User Type</option>
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Guest">Guest</option>
+                </select></td></tr>
             </table>
             <div class="buttons">
                 <button type="button" onclick="window.location.href='login.php'">Back</button>
