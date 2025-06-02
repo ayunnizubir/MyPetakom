@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Event</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    
+    <div class="sidebar">
+        <img src="../css/petakom_logo.png" alt="PETAKOM Logo">
+        <h2>MyPetakom</h2>
+        <ul>
+        <li><a href="dashboard_advisor.php">Dashboard Event Advisor</a></li>
+        <li><a href="create_event.html" class="active">Create Event</a></li>
+        <li><a href="event_list.php">Event List</a></li>
+        <li><a href="../Committee/committee.php">Committee</a></li>
+        <li><a href="../Merit/merit_applications.php">Merit Application</a></li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <div class="header">
+        <h1>Create Event</h1>
+        <div class="profile">
+            <div class="profile-icon">👤</div>
+            <span>User's Name</span>
+            <button>Sign Out</button>
+        </div>
+        </div>
+
+    <div class="container">
+        <h2>Event Details</h2>
+        <form action="create_event.php" method="POST" enctype="multipart/form-data">
+
+        
+        <label for="event_name">Event Name</label>
+        <input type="text" id="event_name" name="event_name" required>
+
+        
+        <label for="event_date">Date</label>
+        <input type="date" id="event_date" name="event_date" required>
+
+        
+        <label>Time</label>
+        <div class="row">
+            <select id="hour" name="hour" required>
+                <option value="">Hour</option>
+                <option value="01">01</option>
+                <option value="02">02</option>
+                <option value="03">03</option>
+                <option value="04">04</option>
+                <option value="05">05</option>
+                <option value="06">06</option>
+                <option value="07">07</option>
+                <option value="08">08</option>
+                <option value="09">09</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+
+            <select id="minute" name="minute" required>
+                <option value="">Min</option>
+                <option value="00">00</option>
+                <option value="05">05</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+                <option value="35">35</option>
+                <option value="40">40</option>
+                <option value="45">45</option>
+                <option value="50">50</option>
+                <option value="55">55</option>
+            </select>
+
+            <select id="ampm" name="ampm" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+            </select>
+        </div>
+
+        
+        <label for="location">Location</label>
+        <select id="location" name="location" required>
+            <option value="">— Select Location —</option>
+            <option value="Astaka">Astaka</option>
+            <option value="DK1">DK1</option>
+            <option value="DK2">DK2</option>
+            <option value="Online">Online</option>
+        </select>
+
+        
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required></textarea>
+
+        
+        <label for="approval_letter">Upload Approval Letter</label>
+        <input type="file" id="approval_letter" name="approval_letter">
+
+        <input type="hidden" name="status" value="Pending">
+
+        <div class="btn-group">
+            <button type="button" onclick="history.back()">Cancel</button>
+            <button type="submit" class="btn-submit">Create</button>
+        </div>
+        </form>
+    </div>
+    </div>
+</body>
+</html>
