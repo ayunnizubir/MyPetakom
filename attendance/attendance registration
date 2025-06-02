@@ -1,0 +1,65 @@
+<?php
+$event = [
+    'id' => 'EVT001',
+    'name' => 'Hackathon',
+    'datetime' => '2025-06-10 at 10.00 a.m',
+    'location' => 'Astaka',
+    'status' => 'Upcoming'
+];
+
+include "lib/phpqrcode/qrlib.php";
+$tempDir = "temp/";
+if (!file_exists($tempDir)) mkdir($tempDir);
+
+$qr_content = json_encode($event);
+$qrFile = $tempDir . $event['id'] . ".png";
+QRcode::png($qr_content, $qrFile);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Attendance Slot</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f4f4; padding: 20px; }
+        .container { width: 60%; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .qr-container { text-align: center; margin-top: 20px; }
+        .download-btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Event Attendance Slot</h2>
+        <table>
+            <tr>
+                <th>Event ID</th>
+                <th>Event Name</th>
+                <th>Date & Time</th>
+                <th>Location</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td><?= $event['id'] ?></td>
+                <td><?= $event['name'] ?></td>
+                <td><?= $event['datetime'] ?></td>
+                <td><?= $event['location'] ?></td>
+                <td><?= $event['status'] ?></td>
+            </tr>
+        </table>
+
+        <div class="qr-container">
+            <h3>QR Code for Event Attendance</h3>
+            <img src="<?= $qrFile ?>" alt="QR Code"><br><br>
+            <a class="download-btn" href="download_qr.php?file=<?= $event['id'] ?>.png">Download QR Code</a>
+        </div>
+    </div>
+</body>
+</html>
