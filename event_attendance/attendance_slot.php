@@ -30,7 +30,7 @@ if (isset($_GET['event_id'])) {
     $result = mysqli_query($conn, $query);
     $event = mysqli_fetch_assoc($result);
 
-    $qr_data = "http://localhost/event_attendance/attendance_register.php?event_id=" . $event_id;
+    $qr_data = "http://localhost/MyPetakom/event_attendance/attendance_register.php?event_id=" . $event_id;
     $qr_file = "qrcodes/" . $event_id . ".png";
     QRcode::png($qr_data, $qr_file, QR_ECLEVEL_H, 5);
 }
