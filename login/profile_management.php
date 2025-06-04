@@ -17,95 +17,89 @@ $username = $_SESSION['username'] ?? 'Guest';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Profile Management</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
+    <meta charset="UTF-8">
+    <title>Profile Management - MyPetakom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background-color: #f0f0f0;
-      border-bottom: 1px solid #ccc;
-    }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
 
-    .logo, .title, .page-title, .user-info {
-      margin: 0 10px;
-    }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-    }
+        .user-info img{
+            width:30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
 
-    .user-info img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin-left: 10px;
-    }
+        nav {
+            width: 200px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-right: 1px solid #ccc;
+        }
 
-    .sidebar {
-      position: fixed;
-      top: 60px;
-      left: 0;
-      width: 200px;
-      background-color: #e0e0e0;
-      height: 100vh;
-      padding-top: 20px;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
+        nav a {
+            display: block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: black;
+        }
 
-    .sidebar a {
-      display: block;
-      padding: 12px;
-      text-decoration: none;
-      color: black;
-      border-bottom: 1px solid #ccc;
-    }
+        main {
+            flex-grow: 1;
+            margin-left: 220px;
+            padding: 30px;
+        }
 
-    main {
-      margin-left: 220px;
-      padding: 2rem;
-    }
+        h2{
+            text-align: center;
+        }
 
-    h2 {
-      text-align: center;
-    }
+        .profile-container{
+            text-align: center;
+            margin-top: 2rem;
+        }
 
-    .profile-container {
-      text-align: center;
-      margin-top: 2rem;
-    }
+        .profile-image img{
+            width: 120px;
+            height: 160px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            margin-bottom: 1rem;
+        }
 
-    .profile-image img {
-      width: 120px;
-      height: 160px;
-      object-fit: cover;
-      border: 1px solid #ccc;
-      margin-bottom: 1rem;
-    }
+        .profile-info{
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #fafafa;
+        }
 
-    .profile-info {
-      max-width: 400px;
-      margin: 0 auto;
-      text-align: left;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      border-radius: 8px;
-      background: #fafafa;
-    }
+        .profile-info p{
+            margin: 10px 0;
+        }
 
-    .profile-info p {
-      margin: 10px 0;
-    }
 
     .buttons {
       margin-top: 1.5rem;
@@ -131,58 +125,69 @@ $username = $_SESSION['username'] ?? 'Guest';
     form {
       display: inline;
     }
-  </style>
+    </style>
 </head>
 <body>
 
-<nav>
-    <div class="header">
-        <img src="petakom_logo.png" alt="Petakom's Logo" width="120px" height="auto">
-    </div>
-    <a href="udashboard.php">Dashboard</a>
-    <a href="profile_management.php">Profile Management</a>
-    <a href="membership_application.php">Membership Application</a>
-    <a href="event_list.php">Event List</a>
-    <a href="event_attendance.php">Event Attendance</a>
-</nav>
+<body>
+<div style="display: flex; height: 100vh;"> <!-- Flex container for sidebar + main content -->
 
-<div style="flex-grow: 1;">
-    <header>
-        <div><strong>MyPetakom</strong></div>
-        <div class="user-info">
-            <div>Profile Management</div>
-            <div><?php echo htmlspecialchars($username); ?></div>
-            <form method="post" style="display:inline;">
-                <button type="submit" name="logout">Sign Out</button>
-            </form>
+    <!-- Sidebar -->
+    <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
+        <div class="header" style="text-align:center;">
+            <img src="petakom_logo.png" alt="Petakom's Logo" width="120px" height="auto">
         </div>
-    </header>
+        <h3>MyPetakom</h3>
+        <a href="udashboard.php">Dashboard</a>
+        <a href="profile_management.php">Profile Management</a>
+        <a href="membership_application.php">Membership Application</a>
+        <a href="event_list.php">Event List</a>
+        <a href="event_attendance.php">Event Attendance</a>
+    </nav>
 
-  <!-- Main Content -->
-  <main>
-    <h2>View Profile Information</h2>
-    <div class="profile-container">
-      <div class="profile-image">
-        <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile Image">
-      </div>
+    <!-- Main Content -->
+    <div style="flex-grow: 1; display: flex; flex-direction: column;">
+        <header>
+            <div><strong>MyPetakom</strong></div>
+            <div class="user-info">
+                <div>Profile Management</div>
+                <div><?php echo htmlspecialchars($username); ?></div>
+                <form method="post" style="display:inline;">
+                    <button type="submit" name="logout">Sign Out</button>
+                </form>
+            </div>
+        </header>
 
-      <div class="profile-info">
-        <p><strong>User's Name:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-        <p><strong>Matric ID:</strong> <?php echo htmlspecialchars($user['matric_id']); ?></p>
-        <p><strong>User's Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-        <p><strong>User's Phone Number:</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
-      </div>
+        <main>
+            <h2>Profile Information</h2>
+            <div class="profile-info">
+                <p><strong>User's Name:</strong> <?php echo isset($user['name']) ? htmlspecialchars($user['name']) : 'Not available'; ?></p>
+                <p><strong>Matric ID:</strong> <?php echo isset($user['matric_id']) ? htmlspecialchars($user['matric_id']) : 'Not available'; ?></p>
+                <p><strong>User's Email:</strong> <?php echo isset($user['email']) ? htmlspecialchars($user['email']) : 'Not available'; ?></p>
+                <p><strong>User's Phone Number:</strong> <?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'Not available'; ?></p>
+            </div>
 
-      <div class="buttons">
-        <a href="back.php">Back</a>
-        <a href="edit.php?id=1">Edit</a>
-        <form action="delete.php" method="post">
-          <input type="hidden" name="id" value="1">
-          <button class="danger" type="submit">Delete</button>
-        </form>
-      </div>
+            <div class="buttons">
+                <a href="back.php">Back</a>
+                <a href="edit.php?id=1">Edit</a>
+                <form action="delete.php" method="post">
+                    <input type="hidden" name="id" value="1">
+                    <button class="danger" type="submit">Delete</button>
+                </form>
+            </div>
+        </main>
     </div>
-  </main>
+</div>
+</body>
+
+<?php
+// Logout logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+?>
 
 </body>
 </html>
