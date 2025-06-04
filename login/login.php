@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['username'] = $user['fullname'];
             $_SESSION['role'] = 'user'; // Set appropriately if you use roles
 
-            header("Location: udashboard.php");
+            header("Location: login.php");
             exit;
         } else {
             echo "<script>alert('Incorrect password.');</script>";
