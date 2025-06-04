@@ -21,20 +21,22 @@ if (isset($_POST['delete_event']) && isset($_POST['event_id'])) {
     exit();
 }
 
-// --- Handle Event Search ---
-$event = null;
-$qr_file = '';
-if (isset($_GET['event_id'])) {
-    $event_id = $_GET['event_id'];
-    $query = "SELECT * FROM events WHERE event_id='$event_id'";
+// --- Handle Event Search by Name ---
+$events = [];
+$qr_files = [];
+if (isset($_GET['event_name'])) {
+    $event_name = mysqli_real_escape_string($conn, $_GET['event_name']);
+    $query = "SELECT * FROM events WHERE name LIKE '%$event_name%'";
     $result = mysqli_query($conn, $query);
-    $event = mysqli_fetch_assoc($result);
-
-    $qr_data = "http://localhost/MyPetakom/event_attendance/attendance_register.php?event_id=" . $event_id;
-    $qr_file = "qrcodes/" . $event_id . ".png";
-    QRcode::png($qr_data, $qr_file, QR_ECLEVEL_H, 5);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $events[] = $row;
+        // Generate QR code for each event
+        $qr_data = "http://localhost/MyPetakom/event_attendance/attendance_register.php?event_id=" . $row['event_id'];
+        $qr_file = "qrcodes/" . $row['event_id'] . ".png";
+        QRcode::png($qr_data, $qr_file, QR_ECLEVEL_H, 5);
+        $qr_files[$row['event_id']] = $qr_file;
+    }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -270,10 +272,10 @@ if (isset($_GET['event_id'])) {
         <div class="content-card">
             <h2>Event Attendance Slot</h2>
             <form method="GET" class="search-row">
-                <input type="text" name="event_id" placeholder="Enter event ID" required>
+                <input type="text" name="event_name" placeholder="Enter event name" required>
                 <button type="submit">Search</button>
             </form>
-            <?php if ($event) { ?>
+            <?php if (!empty($events)) { ?>
                 <table>
                     <tr>
                         <th>Event ID</th>
@@ -281,22 +283,27 @@ if (isset($_GET['event_id'])) {
                         <th>Date & Time</th>
                         <th>Location</th>
                         <th>Status</th>
+                        <th>QR Code</th>
                     </tr>
+                    <?php foreach ($events as $event) { ?>
                     <tr>
                         <td><?= htmlspecialchars($event['event_id']) ?></td>
                         <td><?= htmlspecialchars($event['name']) ?></td>
                         <td><?= htmlspecialchars(date('Y-m-d', strtotime($event['datetime']))) ?><br>at <?= htmlspecialchars(date('h.i a', strtotime($event['datetime']))) ?></td>
                         <td><?= htmlspecialchars($event['location']) ?></td>
                         <td><?= htmlspecialchars($event['status']) ?></td>
+                        <td>
+                            <img src="<?= htmlspecialchars($qr_files[$event['event_id']]) ?>" alt="QR Code" width="80">
+                            <br>
+                            <a href="<?= htmlspecialchars($qr_files[$event['event_id']]) ?>" download>
+                                <button type="button" class="download-btn">Download QR</button>
+                            </a>
+                        </td>
                     </tr>
+                    <?php } ?>
                 </table>
-                <div class="qr-section">
-                    <img src="<?= htmlspecialchars($qr_file) ?>" alt="QR Code">
-                    <br>
-                    <a href="<?= htmlspecialchars($qr_file) ?>" download>
-                        <button type="button" class="download-btn">Download QR code</button>
-                    </a>
-                </div>
+            <?php } elseif (isset($_GET['event_name'])) { ?>
+                <p style="color: #c00; text-align: center;">No events found for "<?= htmlspecialchars($_GET['event_name']) ?>".</p>
             <?php } ?>
         </div>
     </div>
