@@ -77,10 +77,6 @@ $history_result = $conn->query("SELECT merit.*, events.event_name FROM merit JOI
             <h2 style="margin-top: 40px;">Application History</h2>
             <table>
                 <tr>
-<<<<<<< HEAD
-                    <th>No</th>
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                     <th>Event</th>
                     <th>Type</th>
                     <th>Status</th>
@@ -91,10 +87,6 @@ $history_result = $conn->query("SELECT merit.*, events.event_name FROM merit JOI
                 while ($row = $history_result->fetch_assoc()):
                 ?>
                 <tr>
-<<<<<<< HEAD
-                    <td><?= $i++ ?></td>
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                     <td><?= $row['event_name'] ?></td>
                     <td><?= $row['type'] ?></td>
                     <td><?= $row['status'] ?></td>

@@ -1,21 +1,4 @@
 <?php
-<<<<<<< HEAD
-$conn = new mysqli("localhost", "root", "", "db_registration");
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = intval($_POST['id']);
-    $status = $_POST['status'];
-
-    $sql = "UPDATE merit SET status = '$status' WHERE id = $id";
-    if ($conn->query($sql) === TRUE) {
-        header("Location: merit_approval.php");
-        exit();
-    } else {
-        echo "Error updating merit status: " . $conn->error;
-    }
-}
-$conn->close();
-=======
 // Event_Registration/Merit/update_merit_status.php
 
 // Only accept POST submissions
@@ -59,5 +42,4 @@ if ($stmt->affected_rows >= 0) {
 $stmt->close();
 $conn->close();
 exit;
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 ?>

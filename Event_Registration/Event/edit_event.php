@@ -1,11 +1,7 @@
 <?php
-<<<<<<< HEAD
 // edit_event.php — display the edit form only
 
 // 1) connect & fetch the existing event
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 $conn = new mysqli("localhost", "root", "", "db_registration");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -23,11 +19,7 @@ if (!$res || $res->num_rows === 0) {
 $event = $res->fetch_assoc();
 $conn->close();
 
-<<<<<<< HEAD
 // 2) parse existing time into hour/minute/AMPM
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 $hour   = '01';
 $minute = '00';
 $ampm   = 'AM';
@@ -39,11 +31,7 @@ if (!empty($event['event_time'])) {
     $ampm   = $a;
 }
 
-<<<<<<< HEAD
 // 3) the only source of truth for locations
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
 ?>
 <!DOCTYPE html>
@@ -81,11 +69,7 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
         <form action="update_event.php" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id" value="<?= htmlspecialchars($event['id']) ?>">
 
-<<<<<<< HEAD
         <!-- Event Name -->
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label for="event_name">Event Name</label>
         <input
             type="text"
@@ -95,10 +79,7 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             required
             >
 
-<<<<<<< HEAD
         <!-- Date -->
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label for="event_date">Date</label>
         <input
             type="date"
@@ -108,10 +89,7 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             required
             >
 
-<<<<<<< HEAD
         <!-- Time -->
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label>Time</label>
         <div class="row">
             <select name="hour" required>
@@ -142,11 +120,7 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             </select>
             </div>
 
-<<<<<<< HEAD
         <!-- Location -->
-=======
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label for="location">Location</label>
         <select id="location" name="location" required>
             <option value="">— Select Location —</option>
@@ -160,10 +134,7 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             <?php endforeach; ?>
         </select>
 
-<<<<<<< HEAD
         <!-- Description -->
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label for="description">Description</label>
         <textarea
             id="description"
@@ -171,15 +142,8 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             required
         ><?= htmlspecialchars($event['description']) ?></textarea>
 
-<<<<<<< HEAD
-        <!-- Preserve status -->
         <input type="hidden" name="status" value="<?= htmlspecialchars($event['status']) ?>">
 
-        <!-- Existing approval letter -->
-=======
-        <input type="hidden" name="status" value="<?= htmlspecialchars($event['status']) ?>">
-
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label>Current Approval Letter</label>
         <?php if (!empty($event['approval_letter'])): ?>
             <p>
@@ -196,10 +160,6 @@ $locations = ['Astaka', 'DK1', 'DK2', 'Online'];
             value="<?= htmlspecialchars($event['approval_letter']) ?>"
         >
 
-<<<<<<< HEAD
-        <!-- Upload new letter -->
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <label for="approval_letter">Upload New Approval Letter</label>
         <input type="file" id="approval_letter" name="approval_letter">
 

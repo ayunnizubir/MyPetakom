@@ -1,14 +1,8 @@
 <?php
-<<<<<<< HEAD
-// event_list.php — show all events, disable Edit for “Cancelled” and style buttons
-
-$conn   = new mysqli("localhost","root","","db_registration");
-=======
 // Event_Registration/Event/event_list.php
 
 // 1) Fetch all events
 $conn = new mysqli("localhost","root","","db_registration");
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -21,43 +15,6 @@ $conn->close();
     <meta charset="UTF-8">
     <title>Event List</title>
     <link rel="stylesheet" href="../css/style.css">
-<<<<<<< HEAD
-    <style>
-        /* BUTTON STYLES */
-        .btn-create,
-        .btn-edit,
-        .btn-delete {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        margin: 0.25rem;
-        font-size: 0.9rem;
-        border: none;
-        border-radius: 4px;
-        color: #fff;
-        text-decoration: none;
-        cursor: pointer;
-        }
-        .btn-create { background-color: #4CAF50; }
-        .btn-create:hover { background-color: #45A049; }
-        .btn-edit   { background-color: #2196F3; }
-        .btn-edit:hover   { background-color: #0B7FDA; }
-        .btn-delete { background-color: #F44336; }
-        .btn-delete:hover { background-color: #D32F2F; }
-        .btn-edit[disabled] {
-        background-color: #aaa;
-        cursor: not-allowed;
-        }
-
-        /* Make sure header & container from your CSS still apply */
-        .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-        }
-    </style>
-=======
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 </head>
 <body>
     <!-- Sidebar -->
@@ -80,50 +37,29 @@ $conn->close();
         <div class="profile">
             <div class="profile-icon">👤</div>
             <span>User's Name</span>
-<<<<<<< HEAD
-            <button>Sign Oubutton>
-        </div>
-        </div>
-
-        <div class="container">
-=======
             <button>Sign Out</button>
         </div>
     </div>
 
     <div class="container">
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
         <a href="create_event.html" class="btn-create">+ Create New Event</a>
 
         <?php if ($result->num_rows === 0): ?>
             <p><em>No events found.</em></p>
         <?php else: ?>
-<<<<<<< HEAD
-            <table>
-            <thead>
-                <tr>
-=======
         <table>
             <thead>
             <tr>
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                 <th>Name</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Location</th>
                 <th>Status</th>
                 <th>Actions</th>
-<<<<<<< HEAD
-                </tr>
-            </thead>
-            <tbody>
-                <?php while($ev = $result->fetch_assoc()): ?>
-=======
             </tr>
             </thead>
             <tbody>
             <?php while($ev = $result->fetch_assoc()): ?>
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
                 <tr>
                 <td><?= htmlspecialchars($ev['event_name']) ?></td>
                 <td><?= htmlspecialchars($ev['event_date']) ?></td>
@@ -132,25 +68,6 @@ $conn->close();
                 <td><?= htmlspecialchars($ev['status']) ?></td>
                 <td>
                     <?php if ($ev['status'] === 'Cancelled'): ?>
-<<<<<<< HEAD
-                        <button class="btn-edit" disabled>Edit</button>
-                    <?php else: ?>
-                        <a href="edit_event.php?id=<?= $ev['id'] ?>" class="btn-edit">Edit</a>
-                    <?php endif; ?>
-                    <a href="delete_event.php?id=<?= $ev['id'] ?>"
-                        class="btn-delete"
-                        onclick="return confirm('Delete this event?');">
-                        Delete
-                    </a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-    </div>
-=======
                     <button class="edit" disabled>Edit</button>
                     <?php else: ?>
                     <a href="edit_event.php?id=<?= $ev['id'] ?>" class="edit">Edit</a>
@@ -212,6 +129,5 @@ $conn->close();
         });
     }
     </script>
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955
 </body>
 </html>

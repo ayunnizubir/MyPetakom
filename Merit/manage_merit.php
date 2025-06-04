@@ -11,25 +11,48 @@ $result = $conn->query($sql);
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Manage Merit Claims</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="form-container">
-    <h2>All Merit Claims</h2>
-    <table border="1" width="100%" cellpadding="10" style="background:white;">
-        <tr style="background:#eee;">
-            <th>Claim ID</th>
-            <th>Student ID</th>
-            <th>Merit ID</th>
-            <th>Level</th>
-            <th>Date Submitted</th>
-            <th>Document</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        <?php while ($row = $result->fetch_assoc()): ?>
-        <tr>
+<div class="sidebar">
+    <img src="css/petakom_logo.png" alt="PETAKOM Logo">
+        <h2>MyPetakom</h2>
+        <ul>
+            <b> Student</a></b>
+            <li><a href="dashboard.php">Dashboard</a></li>
+            <li><a href="claim_merit.php">Claim Merit</a></li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Merit Dashboard</h1>
+            <div class="profile">
+                <div class="profile-icon">👤</div>
+                <span>User's Name</span>
+                <button>Sign Out</button>
+            </div>
+        </div>
+    
+
+    <div class="form-container">
+        <h2>All Merit Claims</h2>
+        <table border="1" width="100%" cellpadding="10" style="background:white;">
+            <tr style="background:#eee;">
+             <th>Claim ID</th>
+                <th>Student ID</th>
+             <th>Merit ID</th>
+             <th>Level</th>
+             <th>Date Submitted</th>
+             <th>Document</th>
+             <th>Status</th>
+              <th>Action</th>
+         </tr>
+         <?php while ($row = $result->fetch_assoc()): ?>
+         <tr>
             <td><?php echo $row['ClaimID']; ?></td>
             <td><?php echo $row['StudentID']; ?></td>
             <td><?php echo $row['MeritID']; ?></td>
@@ -44,6 +67,7 @@ $result = $conn->query($sql);
         </tr>
         <?php endwhile; ?>
     </table>
+    </div>
 </div>
 </body>
 </html>
