@@ -72,12 +72,15 @@ $conn->close();
                     <?php else: ?>
                     <a href="edit_event.php?id=<?= $ev['id'] ?>" class="edit">Edit</a>
                     <?php endif; ?>
+                    <form method="GET" action="delete_event.php" style="display:inline">
+                    <input type="hidden" name="id" value="<?= $ev['id'] ?>">
+                    <button type="submit"
+                        class="delete"
+                        onclick="return confirm('Delete this event?')">
+                        Delete
+                    </button>
+                    </form>
 
-                    <a href="delete_event.php?id=<?= $ev['id'] ?>"
-                    class="delete"
-                    onclick="return confirm('Delete this event?');">
-                    Delete
-                    </a>
 
 
                 <button class="qr" onclick="toggleQR(<?= $ev['id'] ?>)">

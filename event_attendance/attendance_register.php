@@ -2,53 +2,75 @@
 include('db.php');
 session_start();
 
-$event = null;
-$message = '';
-$event_id = isset($_GET['event_id']) ? $_GET['event_id'] : null;
+$event       = null;
+$message     = '';
+$event_id    = isset($_GET['id']) ? intval($_GET['id']) : null;
 
-// Fetch event details
+// ── LOAD ALL EVENTS FOR DROPDOWN ──
+$all_events = [];
+$res_all    = mysqli_query($conn, "SELECT id, event_name FROM events ORDER BY event_date, event_time");
+while ($r = mysqli_fetch_assoc($res_all)) {
+    $all_events[] = $r;
+}
+
+// ── FETCH SELECTED EVENT ──
 if ($event_id) {
-    $stmt = mysqli_prepare($conn, "SELECT * FROM events WHERE event_id = ?");
-    mysqli_stmt_bind_param($stmt, "s", $event_id);
+    $stmt = mysqli_prepare($conn, "SELECT * FROM events WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $event_id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    $event = mysqli_fetch_assoc($result);
+    $event  = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
 }
 
-// Handle check-in form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event_id) {
+// ── HANDLE CHECK-IN FORM SUBMISSION ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event) {
     $student_id = $_POST['student_id'];
-    $password = $_POST['password'];
-    $location = $_POST['location'];
+    $password   = $_POST['password'];
+    $location   = $_POST['location'];
 
     // Validate student credentials
-    $stmt = mysqli_prepare($conn, "SELECT * FROM students WHERE student_id = ? AND password = ?");
+    $stmt = mysqli_prepare($conn,
+      "SELECT * FROM students WHERE student_id = ? AND password = ?"
+    );
     mysqli_stmt_bind_param($stmt, "ss", $student_id, $password);
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    $result  = mysqli_stmt_get_result($stmt);
     $student = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
 
     if ($student) {
         // Check if student is already checked in
-        $stmt = mysqli_prepare($conn, "SELECT * FROM attendance WHERE event_id = ? AND student_id = ?");
-        mysqli_stmt_bind_param($stmt, "ss", $event_id, $student_id);
+        $stmt = mysqli_prepare($conn,
+          "SELECT * FROM attendance WHERE id = ? AND student_id = ?"
+        );
+        mysqli_stmt_bind_param($stmt, "is", $event_id, $student_id);
         mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+        $result     = mysqli_stmt_get_result($stmt);
         $attendance = mysqli_fetch_assoc($result);
         mysqli_stmt_close($stmt);
 
         if ($attendance) {
-            $message = "<div class='alert alert-error'>You have already checked in to this event.</div>";
+            $message = "<div class='alert alert-error'>
+                          You have already checked in to this event.
+                        </div>";
         } else {
             // Record attendance
-            $stmt = mysqli_prepare($conn, "INSERT INTO attendance (event_id, student_id, checkin_time, location) VALUES (?, ?, NOW(), ?)");
-            mysqli_stmt_bind_param($stmt, "sss", $event_id, $student_id, $location);
+            $stmt = mysqli_prepare($conn,
+              "INSERT INTO attendance (id, student_id, checkin_time, location)
+               VALUES (?, ?, NOW(), ?)"
+            );
+            mysqli_stmt_bind_param($stmt, "iss",
+              $event_id, $student_id, $location
+            );
             if (mysqli_stmt_execute($stmt)) {
-                $message = "<div class='alert alert-success'>Attendance recorded successfully!</div>";
+                $message = "<div class='alert alert-success'>
+                              Attendance recorded successfully!
+                            </div>";
             } else {
-                $message = "<div class='alert alert-error'>Error recording attendance. Please try again.</div>";
+                $message = "<div class='alert alert-error'>
+                              Error recording attendance. Please try again.
+                            </div>";
             }
             mysqli_stmt_close($stmt);
         }
@@ -163,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event_id) {
         form {
             margin-top: 20px;
         }
-        input, button {
+        select, input, button {
             padding: 12px;
             margin: 8px 0;
             width: 100%;
@@ -198,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event_id) {
     </style>
 </head>
 <body>
-    <!-- Sidebar (optional) -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <img src="petakom.png" alt="Petakom Logo" class="logo">
         <h3>MyPetakom</h3>
@@ -214,21 +236,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event_id) {
     <div class="main-content">
         <div class="card">
             <h2>Student Attendance Check-In</h2>
+
+            <!-- ── EVENT DROPDOWN WHEN NO ID ── -->
+            <?php if (!$event_id): ?>
+                <form method="get">
+                    <select name="id" required>
+                        <option value="">-- Select Event --</option>
+                        <?php foreach ($all_events as $e): ?>
+                            <option value="<?= $e['id'] ?>">
+                                <?= htmlspecialchars($e['event_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit">Load Event</button>
+                </form>
+            <?php endif; ?>
+
+            <!-- ── SHOW EVENT DETAILS OR ERROR ── -->
             <?php if ($event): ?>
                 <div class="event-details">
-                    <h3><?= htmlspecialchars($event['name']) ?></h3>
-                    <p><strong>Date & Time:</strong> <?= htmlspecialchars($event['datetime']) ?></p>
-                    <p><strong>Location:</strong> <?= htmlspecialchars($event['location']) ?></p>
-                    <?php if (isset($event['description'])): ?>
-                        <p><strong>Description:</strong> <?= htmlspecialchars($event['description']) ?></p>
+                    <h3><?= htmlspecialchars($event['event_name']) ?></h3>
+                    <p><strong>Date & Time:</strong>
+                       <?= htmlspecialchars($event['event_date'] . ' ' . $event['event_time']) ?>
+                    </p>
+                    <p><strong>Location:</strong>
+                       <?= htmlspecialchars($event['location']) ?>
+                    </p>
+                    <?php if (!empty($event['description'])): ?>
+                        <p><strong>Description:</strong>
+                           <?= htmlspecialchars($event['description']) ?>
+                        </p>
                     <?php endif; ?>
                 </div>
-            <?php else: ?>
-                <div class="alert alert-error">Event not found or no event ID provided.</div>
+            <?php elseif ($event_id): ?>
+                <div class="alert alert-error">
+                  Event not found or no event ID provided.
+                </div>
             <?php endif; ?>
-            <?php if ($message): ?>
-                <?= $message ?>
-            <?php endif; ?>
+
+            <!-- ── SUCCESS/ERROR MESSAGE ── -->
+            <?= $message ?>
+
+            <!-- ── CHECK-IN FORM ── -->
             <?php if ($event): ?>
                 <form method="POST">
                     <input type="hidden" id="location" name="location">
@@ -237,12 +286,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event_id) {
                     <button type="submit">Check In</button>
                 </form>
             <?php endif; ?>
+
         </div>
     </div>
     <script>
         navigator.geolocation.getCurrentPosition(function(pos) {
-            document.getElementById('location').value = pos.coords.latitude + "," + pos.coords.longitude;
-        }, function(error) {
+            document.getElementById('location').value =
+              pos.coords.latitude + "," + pos.coords.longitude;
+        }, function() {
             alert("Location access is required for attendance.");
         });
     </script>

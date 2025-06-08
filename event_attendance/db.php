@@ -2,7 +2,7 @@
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$dbname = 'mypetakom';
+$dbname = 'db_registration';
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
 if (!$conn) {
