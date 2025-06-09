@@ -22,6 +22,7 @@ $history_result = $conn->query("SELECT merit.*, events.event_name FROM merit JOI
         <ul>
             <li><a href="../Event/dashboard_advisor.php">Dashboard Event Advisor</a></li>
             <li><a href="../Event/create_event.html">Create Event</a></li>
+            <li><a href="../../event_attendance/attendance_slot.php">Create Attendance Slot</a></li>
             <li><a href="../Event/event_list.php">Event List</a></li>
             <li><a href="../Committee/committee.php">Committee</a></li>
             <li><a href="merit_applications.php">Merit Application</a></li>

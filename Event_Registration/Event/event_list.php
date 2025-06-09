@@ -24,6 +24,7 @@ $conn->close();
         <ul>
         <li><a href="dashboard_advisor.php">Dashboard Event Advisor</a></li>
         <li><a href="create_event.html">Create Event</a></li>
+        <li><a href="../../event_attendance/attendance_slot.php">Create Attendance Slot</a></li>
         <li><a href="event_list.php" class="active">Event List</a></li>
         <li><a href="../Committee/committee.php">Committee</a></li>
         <li><a href="../Merit/merit_applications.php">Merit Application</a></li>
