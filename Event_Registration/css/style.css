@@ -141,8 +141,6 @@ button.qr {
     transform: scale(1.2);
     margin-left: 20px;
 }
-<<<<<<< HEAD
-=======
 
 .qr, .delete {
     display: inline-block;
@@ -182,4 +180,3 @@ button.qr {
     cursor: not-allowed;
     box-shadow: none;
 }
->>>>>>> 6c3d878ae734b94f067428de2fbff590fde75955

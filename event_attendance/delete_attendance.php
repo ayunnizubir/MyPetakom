@@ -2,20 +2,36 @@
 include('db.php');
 session_start();
 
-$message = '';
 $delete_message = '';
 
-// Handle delete attendance form submission
+// ── Load all events for the dropdown ──
+$events = [];
+$res    = mysqli_query($conn, "SELECT id, event_name FROM events ORDER BY event_date, event_time");
+while ($row = mysqli_fetch_assoc($res)) {
+    $events[] = $row;
+}
+
+// ── Handle delete attendance form submission ──
 if (isset($_POST['delete_attendance'])) {
     $student_id = $_POST['student_id'];
-    $event_id = $_POST['event_id'];
+    $event_id   = intval($_POST['event_id']);
 
-    $stmt = mysqli_prepare($conn, "DELETE FROM attendance WHERE student_id = ? AND event_id = ?");
-    mysqli_stmt_bind_param($stmt, "ss", $student_id, $event_id);
+    $stmt = mysqli_prepare(
+      $conn,
+      "DELETE FROM attendance
+         WHERE student_id = ?
+           AND event_id   = ?"
+    );
+    mysqli_stmt_bind_param($stmt, "si", $student_id, $event_id);
+
     if (mysqli_stmt_execute($stmt)) {
-        $delete_message = "<div class='alert alert-success'>Attendance record deleted successfully!</div>";
+        $delete_message = "<div class='alert alert-success'>
+                              Attendance record deleted successfully!
+                           </div>";
     } else {
-        $delete_message = "<div class='alert alert-error'>Error deleting attendance record.</div>";
+        $delete_message = "<div class='alert alert-error'>
+                              Error deleting attendance record.
+                           </div>";
     }
     mysqli_stmt_close($stmt);
 }
@@ -117,7 +133,7 @@ if (isset($_POST['delete_attendance'])) {
         form {
             margin-top: 20px;
         }
-        input, button {
+        input, select, button {
             padding: 12px;
             margin: 8px 0;
             width: 100%;
@@ -152,7 +168,7 @@ if (isset($_POST['delete_attendance'])) {
     </style>
 </head>
 <body>
-    <!-- Sidebar (optional) -->
+    <!-- Sidebar -->
     <div class="sidebar">
         <img src="petakom.png" alt="Petakom Logo" class="logo">
         <h3>MyPetakom</h3>
@@ -168,12 +184,25 @@ if (isset($_POST['delete_attendance'])) {
     <div class="main-content">
         <div class="card">
             <h2>Event Advisor: Delete Attendance</h2>
-            <?php if ($delete_message): ?>
-                <?= $delete_message ?>
-            <?php endif; ?>
-            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this attendance record?');">
-                <input type="text" name="student_id" placeholder="Student ID" required>
-                <input type="text" name="event_id" placeholder="Event ID" required>
+
+            <!-- Show result message -->
+            <?= $delete_message ?>
+
+            <form method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete this attendance record?');">
+                <label for="student_id">Student ID:</label>
+                <input type="text" name="student_id" id="student_id" placeholder="Student ID" required>
+
+                <label for="event_id">Event:</label>
+                <select name="event_id" id="event_id" required>
+                    <option value="">-- Select Event --</option>
+                    <?php foreach ($events as $ev): ?>
+                        <option value="<?= $ev['id'] ?>">
+                            <?= htmlspecialchars($ev['event_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
                 <button type="submit" name="delete_attendance">Delete Attendance</button>
             </form>
         </div>
