@@ -1,9 +1,8 @@
 <?php
-session_start();
 require_once 'db.php';
+session_start();
 
 // Check if user is logged in and is an admin
-session_start();
 if (!isset($_SESSION['UserID']) || $_SESSION['Role'] !== 'admin') {
     header('Location: login.php');
     exit;
