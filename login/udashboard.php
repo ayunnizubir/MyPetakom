@@ -6,7 +6,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
-if ($_SESSION['role'] === 'admin') {
+if ($_SESSION['userType'] === 'admin') {
     header("Location: admin_dashboard.php");
     exit();
 }
@@ -99,7 +99,7 @@ $username = $_SESSION['username'] ?? 'Guest';
     <div class="header">
         <img src="petakom_logo.png" alt="Petakom's Logo" width="120px" height="auto">
     </div>
-    <a href="user_dashboard.php">Dashboard</a>
+    <a href="udashboard.php">Dashboard</a>
     <a href="profile_management.php">Profile Management</a>
     <a href="membership_application.php">Membership Application</a>
     <a href="event_list.php">Event List</a>

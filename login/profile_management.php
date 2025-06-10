@@ -1,193 +1,289 @@
 <?php
+// edit_profile.php - Profile editing page with matching style
+
+// Database configuration
+$host = 'localhost';
+$dbname = 'mypetakom';
+$username = 'root';
+$password = '';
+
+// Start session
 session_start();
 
+// Redirect if not logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header("Location: login.php");
     exit();
 }
 
-if ($_SESSION['role'] === 'admin') {
-    header("Location: admin_dashboard.php");
-    exit();
-}
+$logged_in_username = $_SESSION['username'] ?? 'Guest';
+$current_user_id = $_SESSION['user_id'] ?? null;
 
-$username = $_SESSION['username'] ?? 'Guest';
+// Initialize variables
+$errors = [];
+$success = '';
+$user = [];
+
+try {
+    // Create database connection
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Get current user data using session ID
+    $current_user_id = $_SESSION['user_id'] ?? null;
+    if (!$current_user_id) {
+        die("User not logged in");
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$current_user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        die("User not found");
+    }
+
+    // Process form submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+        // Sanitize and validate inputs
+        $fullname = trim($_POST['fullname'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+
+        // Validation
+        if (empty($fullname)) $errors[] = "Full name is required";
+
+        // Update database if no errors
+        if (empty($errors)) {
+            $sql = "UPDATE users SET fullname = ?, phone = ? WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $result = $stmt->execute([$fullname, $phone, $current_user_id]);
+
+            if ($result) {
+                $success = "Profile updated successfully!";
+                // Refresh user data
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+                $stmt->execute([$current_user_id]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            } else {
+                $errors[] = "Failed to update profile";
+            }
+        }
+    }
+} catch (PDOException $e) {
+    $errors[] = "Database error: " . $e->getMessage();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Profile Management - MyPetakom</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPetakom - Profile</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            display: flex;
-            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
-
-        header {
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
+            padding: 0 20px;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .nav-sidebar {
+            width: 250px;
             background-color: #f0f0f0;
-            border-bottom: 1px solid #ccc;
+            height: 100vh;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-info img{
-            width:30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-left: 10px;
-        }
-
-        nav {
-            width: 200px;
-            background-color: #f0f0f0;
-            padding: 20px;
-            border-right: 1px solid #ccc;
-        }
-
-        nav a {
-            display: block;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: black;
-        }
-
-        main {
-            flex-grow: 1;
-            margin-left: 220px;
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            margin-top: 60px;
             padding: 30px;
         }
-
-        h2{
-            text-align: center;
+        
+        .nav-menu {
+            list-style: none;
         }
-
-        .profile-container{
-            text-align: center;
-            margin-top: 2rem;
+        
+        .nav-menu li {
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
         }
-
-        .profile-image img{
-            width: 120px;
-            height: 160px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            margin-bottom: 1rem;
+        
+        .nav-menu li a {
+            text-decoration: none;
+            color: #333;
+            display: block;
         }
-
-        .profile-info{
-            max-width: 400px;
+        
+        .nav-menu li:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .profile-container {
+            max-width: 800px;
             margin: 0 auto;
-            text-align: left;
-            border: 1px solid #ccc;
-            padding: 1rem;
+            background: white;
+            padding: 30px;
             border-radius: 8px;
-            background: #fafafa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .profile-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .detail-item {
+            margin-bottom: 15px;
+        }
+        
+        .detail-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .detail-item span {
+            display: block;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+                .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
         }
 
-        .profile-info p{
-            margin: 10px 0;
+        .buttons a,
+        .buttons button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
+        .buttons button:hover,
+        .buttons a:hover {
+            background: #0056b3;
+        }
 
-    .buttons {
-      margin-top: 1.5rem;
-      text-align: center;
-    }
+        .buttons .danger {
+            background: #dc3545;
+        }
 
-    .buttons a, .buttons button {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 0 10px;
-      text-decoration: none;
-      color: white;
-      background-color: #007BFF;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .buttons .danger:hover {
+            background: #b52a37;
+        }
 
-    .buttons .danger {
-      background-color: #dc3545;
-    }
-
-    form {
-      display: inline;
-    }
+        .logout-btn {
+            background-color: grey;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background-color: #f4f4f4;
+        }
     </style>
 </head>
 <body>
-
-<body>
-<div style="display: flex; height: 100vh;"> <!-- Flex container for sidebar + main content -->
-
-    <!-- Sidebar -->
-    <nav style="width: 200px; background-color: #f0f0f0; padding: 20px; border-right: 1px solid #ccc;">
-        <div class="header" style="text-align:center;">
-            <img src="petakom_logo.png" alt="Petakom's Logo" width="120px" height="auto">
+    <div class="header">
+        <h2>MyPetakom</h2>
+        <div>
+            <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+            <button class="logout-btn" onclick="window.location.href='login.php'">Sign Out</button>
         </div>
-        <h3>MyPetakom</h3>
-        <a href="udashboard.php">Dashboard</a>
-        <a href="profile_management.php">Profile Management</a>
-        <a href="membership_application.php">Membership Application</a>
-        <a href="event_list.php">Event List</a>
-        <a href="event_attendance.php">Event Attendance</a>
-    </nav>
-
-    <!-- Main Content -->
-    <div style="flex-grow: 1; display: flex; flex-direction: column;">
-        <header>
-            <div><strong>MyPetakom</strong></div>
-            <div class="user-info">
-                <div>Profile Management</div>
-                <div><?php echo htmlspecialchars($username); ?></div>
-                <form method="post" style="display:inline;">
-                    <button type="submit" name="logout">Sign Out</button>
-                </form>
-            </div>
-        </header>
-
-        <main>
-            <h2>Profile Information</h2>
-            <div class="profile-info">
-                <p><strong>User's Name:</strong> <?php echo isset($user['name']) ? htmlspecialchars($user['name']) : 'Not available'; ?></p>
-                <p><strong>Matric ID:</strong> <?php echo isset($user['matric_id']) ? htmlspecialchars($user['matric_id']) : 'Not available'; ?></p>
-                <p><strong>User's Email:</strong> <?php echo isset($user['email']) ? htmlspecialchars($user['email']) : 'Not available'; ?></p>
-                <p><strong>User's Phone Number:</strong> <?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'Not available'; ?></p>
-            </div>
-
-            <div class="buttons">
-                <a href="back.php">Back</a>
-                <a href="edit.php?id=1">Edit</a>
-                <form action="delete.php" method="post">
-                    <input type="hidden" name="id" value="1">
-                    <button class="danger" type="submit">Delete</button>
-                </form>
-            </div>
-        </main>
     </div>
-</div>
-</body>
-
-<?php
-// Logout logic
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
-    session_destroy();
-    header("Location: login.php");
-    exit();
-}
-?>
-
+    
+    <div class="nav-sidebar">
+        <img src="petakom_logo.png" alt="Petakom's Logo" width="120px" height="auto">
+        <ul class="nav-menu">
+            <li><a href="udashboard.php">Dashboard</a></li>
+            <li><a href="profile_management.php" style="font-weight: bold; color: #0066cc;">Profile Management</a></li>
+            <li><a href="membership_application.php">Membership Application</a></li>
+            <li><a href="events_list.php">Event List</a></li>
+            <li><a href="attendance.php">Event Attendance</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>User Profile</h1>
+            </div>
+            
+            <div class="profile-details">
+                <div class="detail-item">
+                    <label>Full Name</label>
+                    <span><?php echo htmlspecialchars($user['fullname']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <label>Matric ID</label>
+                    <span><?php echo htmlspecialchars($user['matricid']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <label>Email</label>
+                    <span><?php echo htmlspecialchars($user['email']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <label>Phone Number</label>
+                    <span><?php echo htmlspecialchars($user['phone']); ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+    <a href="edit.php?id=<?php echo $current_user_id; ?>">Edit</a>
+    <a href="confirm_delete.php?id=<?php echo $current_user_id; ?>" class="danger">Delete</a>
+        </div>
+    </div>   
 </body>
 </html>
