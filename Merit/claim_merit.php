@@ -291,6 +291,8 @@ $claims = $stmt->fetchAll();
       justify-content: center;
       text-align: center;
     }
+    .badge.Awarded { 
+      background-color: #0d9488; } /* teal or custom color */
   }
 </style>
 </head>
@@ -299,7 +301,7 @@ $claims = $stmt->fetchAll();
   <div class="logo">MyPetakom</div>
   <nav>
     <a href="dashboard.php">Dashboard</a>
-    <a href="claim_merit.php" aria-current="page">Claim Merit</a>
+    <a href="view_claimed.php">View Claimed Merit</a>
     <?php if ($_SESSION['role'] === 'admin'): ?>
         <a href="manage_merit.php">Manage Merit</a>
     <?php endif; ?>
@@ -348,60 +350,8 @@ $claims = $stmt->fetchAll();
 
   <button type="submit" name="submit_claim">Submit Claim</button>
 </form>
+<p><a href="view_claimed.php" style="color:#2563eb; font-weight:600;">View My Submitted Claims &rarr;</a></p>
 
-<h2>Your Claims</h2>
-<?php if (count($claims) === 0): ?>
-  <p>No merit claims submitted yet.</p>
-<?php else: ?>
-<table aria-label="List of your merit claims">
-<thead>
-  <tr>
-    <th>Event</th><th>Date</th><th>Organizer</th><th>Position</th><th>Level</th><th>Status</th><th>Document</th><th>Actions</th>
-  </tr>
-</thead>
-<tbody>
-<?php foreach($claims as $c): ?>
-<tr>
-  <td data-label="Event"><?=htmlspecialchars($c['EventName'])?></td>
-  <td data-label="Date"><?=htmlspecialchars($c['EventDate'])?></td>
-  <td data-label="Organizer"><?=htmlspecialchars($c['Organizer'])?></td>
-  <td data-label="Position"><?=htmlspecialchars($c['Position'])?></td>
-  <td data-label="Level"><?=htmlspecialchars($c['Level'])?></td>
-  <td data-label="Status"><span class="badge <?=htmlspecialchars($c['Claim_Status'])?>"><?=htmlspecialchars($c['Claim_Status'])?></span></td>
-  <td data-label="Doc"><a href="<?=htmlspecialchars($c['Supporting_Doc'])?>" target="_blank" rel="noopener noreferrer">View</a></td>
-  <td class="actions" data-label="Actions">
-  <?php if ($c['Claim_Status'] !== 'Submitted'): ?>
-    <form method="post" enctype="multipart/form-data" class="inline-form" aria-label="Edit claim #<?=$c['ClaimID']?>">
-      <input type="hidden" name="claimID" value="<?=$c['ClaimID']?>" />
-      <input class="inline-input" type="text" name="eventName" value="<?=htmlspecialchars($c['EventName'])?>" required />
-      <input class="inline-input" type="date" name="eventDate" value="<?=htmlspecialchars($c['EventDate'])?>" required />
-      <input class="inline-input" type="text" name="organizer" value="<?=htmlspecialchars($c['Organizer'])?>" required />
-      <select class="inline-select" name="position" required>
-        <?php foreach(['Main Committee','Committee','Participant'] as $pos): ?>
-          <option value="<?=$pos?>" <?php if($pos === $c['Position']) echo 'selected'?>><?=$pos?></option>
-        <?php endforeach;?>
-      </select>
-      <select class="inline-select" name="level" required>
-        <?php foreach(['International','National','State','District','UMPSA'] as $lvl): ?>
-          <option value="<?=$lvl?>" <?php if($lvl === $c['Level']) echo 'selected'?>><?=$lvl?></option>
-        <?php endforeach;?>
-      </select>
-      <input class="inline-input" type="file" name="supportingDoc" accept=".pdf,image/jpeg,image/png" />
-      <button type="submit" name="update_claim">Update</button>
-    </form>
-    <form method="post" onsubmit="return confirm('Delete this claim?');" style="display:inline-block;" aria-label="Delete claim #<?=$c['ClaimID']?>">
-      <input type="hidden" name="claimID" value="<?=$c['ClaimID']?>" />
-      <button type="submit" name="delete_claim" style="background:#dc2626;">Delete</button>
-    </form>
-  <?php else: ?>
-    <em>Locked</em>
-  <?php endif; ?>
-  </td>
-</tr>
-<?php endforeach; ?>
-</tbody>
-</table>
-<?php endif; ?>
 </main>
 </body>
 </html>

@@ -162,7 +162,6 @@ $totalEvents = $stmt->fetchColumn();
 <header>
   <div class="logo">MyPetakom</div>
   <nav>
-    <a href="admin_dashboard.php">Dashboard</a>
     <a href="manage_merit.php">Manage Merit</a>
     <a href="reward_merit.php">Reward Merit</a>
     <a href="logout.php">Logout</a>

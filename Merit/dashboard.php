@@ -150,8 +150,8 @@ ob_end_clean();
 <header>
   <div class="logo">MyPetakom</div>
   <nav>
-    <a href="dashboard.php" aria-current="page">Dashboard</a>
     <a href="claim_merit.php">Claim Merit</a>
+    <a href="view_claimed.php">View Claimed Merit</a>
     <?php if ($_SESSION['role'] === 'admin'): ?>
       <a href="manage_merit.php">Manage Merit</a>
     <?php endif; ?>

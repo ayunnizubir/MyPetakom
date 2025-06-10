@@ -1,16 +1,13 @@
 <?php
 session_start();
 require_once 'db.php';
-
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['UserID']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
-
 $error = '';
 $success = '';
-
 function calculateMerit($level, $position) {
     $scores = [
         'International' => ['Main Committee' => 100, 'Committee' => 70, 'Participant' => 50],
@@ -21,15 +18,13 @@ function calculateMerit($level, $position) {
     ];
     return $scores[$level][$position] ?? 0;
 }
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reward_merit'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
     $matricID = trim($_POST['matricID'] ?? '');
     $eventName = trim($_POST['eventName'] ?? '');
     $eventDate = $_POST['eventDate'] ?? '';
     $organizer = trim($_POST['organizer'] ?? '');
     $position = $_POST['position'] ?? '';
     $level = $_POST['level'] ?? '';
-
     if (!$matricID || !$eventName || !$eventDate || !$organizer || !$position || !$level) {
         $error = 'Please fill in all fields.';
     } else {
@@ -37,17 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reward_merit'])) {
         $stmt = $pdo->prepare("SELECT UserID FROM user WHERE MatricID = ?");
         $stmt->execute([$matricID]);
         $userID = $stmt->fetchColumn();
-
         if (!$userID) {
             $error = 'Invalid Matric ID.';
         } else {
             // Calculate merit points
             $meritPoints = calculateMerit($level, $position);
-
             // Insert the awarded merit into merit_claim table
-            $stmt = $pdo->prepare("INSERT INTO merit_claim (UserID, EventName, EventDate, Organizer, Position, Level, Claim_Status, Marks) VALUES (?, ?, ?, ?, ?, ?, 'Awarded', ?)");
-            $stmt->execute([$userID, $eventName, $eventDate, $organizer, $position, $level, $meritPoints]);
-
+            $stmt = $pdo->prepare("INSERT INTO merit_claim (UserID, EventName, EventDate, Organizer, Position, Level, Claim_Status) VALUES (?, ?, ?, ?, ?, 'Awarded', ?)");
+            $stmt->execute([$userID, $eventName, $eventDate, $organizer, $position, $level]);
             $success = "Merit awarded successfully to Matric ID: " . htmlspecialchars($matricID);
         }
     }
@@ -205,4 +197,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reward_merit'])) {
     tr {
       margin-bottom: 1rem;
       border-radius: 0.75rem;
-      background:
+      background: #f9fafb;
+      padding: 1rem;
+    }
+    td {
+      text-align: right;
+      position: relative;
+      padding-left: 50%;
+    }
+    td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 1rem;
+      top: 0.75rem;
+      color: #111827;
+      font-weight: 600;
+    }
+    td.actions {
+      justify-content: center;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">MyPetakom</div>
+  <nav>
+    <a href="admin_dashboard.php">Dashboard</a>
+    <a href="manage_merit.php">Manage Merit</a>
+    <a href="logout.php">Logout</a>
+  </nav>
+</header>
+<main>
+    <h1>Reward Merit</h1>
+    <?php if ($error): ?>
+        <p class="message error" role="alert"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+    <?php if ($success): ?>
+        <p class="message success" role="alert"><?= htmlspecialchars($success) ?></p>
+    <?php endif; ?>
+
+    <form method="post" class="card" aria-label="Reward merit to student">
+        <label for="matricID">Matric ID</label>
+        <input type="text" name="matricID" id="matricID" required />
+
+        <label for="eventName">Event Name</label>
+        <input type="text" name="eventName" id="eventName" required />
+
+        <label for="eventDate">Event Date</label>
+        <input type="date" name="eventDate" id="eventDate" required />
+
+        <label for="organizer">Organizer</label>
+        <input type="text" name="organizer" id="organizer" required />
+
+        <label for="position">Position</label>
+        <select id="position" name="position" required>
+            <option value="" disabled selected>Select position</option>
+            <option value="Main Committee">Main Committee</option>
+            <option value="Committee">Committee</option>
+            <option value="Participant">Participant</option>
+        </select>
+
+        <label for="level">Event Level</label>
+        <select id="level" name="level" required>
+            <option value="" disabled selected>Select level</option>
+            <option value="International">International</option>
+            <option value="National">National</option>
+            <option value="State">State</option>
+            <option value="District">District</option>
+            <option value="UMPSA">UMPSA</option>
+        </select>
+
+        <label for="supportingDoc">Supporting Document (PDF, JPG, PNG)</label>
+        <input type="file" id="supportingDoc" name="supportingDoc" accept=".pdf,image/jpeg,image/png" required />
+
+        <button type="submit" name="reward_merit">Reward Merit</button>
+    </form>
+</main>
+</body>
+</html>
