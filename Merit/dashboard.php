@@ -1,10 +1,12 @@
 <?php
 require_once 'db.php';
+session_start();
 
 if (!isset($_SESSION['UserID'])) {
     header('Location: login.php');
     exit;
 }
+
 $userID = $_SESSION['UserID'];
 $name = $_SESSION['Name'];
 $matricID = $_SESSION['MatricID'];

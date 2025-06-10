@@ -1,7 +1,6 @@
 <?php
-session_start();
 require_once 'db.php';
-
+session_start();
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -13,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $stmt = $pdo->prepare('SELECT UserID, Password, Name, MatricID, Role FROM user WHERE Email = ?');
         $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['Password'])) {
             // Set session variables consistently
@@ -25,10 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirect based on role
             if ($user['Role'] === 'admin') {
                 header('Location: admin_dashboard.php');
+                exit();
             } else {
                 header('Location: dashboard.php');
-            }
-            exit;
+                exit();
+          }
         } else {
             $error = 'Invalid email or password.';
         }
