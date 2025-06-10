@@ -8,23 +8,24 @@ if (!isset($_SESSION['UserID']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['approve'])) {
-        // Approve claim
-        $claimID = $_POST['claimID'];
-        header("Location: approve_claim.php?id=$claimID");
-        exit;
-    } elseif (isset($_POST['reject'])) {
-        // Reject claim
-        $claimID = $_POST['claimID'];
-        header("Location: reject_claim.php?id=$claimID");
-        exit;
-    }
-}
+// Fetch counts for claim statuses
+$stmt = $pdo->prepare("SELECT Claim_Status, COUNT(*) AS count FROM merit_claim GROUP BY Claim_Status");
+$stmt->execute();
+$claimCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-// Fetch all pending and submitted claims for admin review
-$stmt = $pdo->query("SELECT mc.*, u.Name, u.MatricID FROM merit_claim mc JOIN user u ON mc.UserID = u.UserID WHERE mc.Claim_Status IN ('Pending','Submitted') ORDER BY mc.Submitted_Date DESC");
-$claims = $stmt->fetchAll();
+$pendingClaimsCount = $claimCounts['Pending'] ?? 0;
+$submittedClaimsCount = $claimCounts['Submitted'] ?? 0;
+$approvedClaimsCount = $claimCounts['Approved'] ?? 0;
+$rejectedClaimsCount = $claimCounts['Rejected'] ?? 0;
+
+// Fetch total number of members
+$stmt = $pdo->query("SELECT COUNT(*) FROM user WHERE Role != 'admin'");
+$totalMembers = $stmt->fetchColumn();
+
+// Fetch total number of events (assuming each approved claim is an event)
+$stmt = $pdo->query("SELECT COUNT(*) FROM merit_claim WHERE Claim_Status = 'Approved'");
+$totalEvents = $stmt->fetchColumn();
+
 ?>
 
 <!DOCTYPE html>
@@ -106,6 +107,31 @@ $claims = $stmt->fetchAll();
     font-weight: 600;
     color: #9ca3af;
   }
+ .dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background-color: #f3f4f6;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.summary-label {
+    font-size: 1rem;
+    color: #4b5563;
+}
   .qr-container {
     margin-top: 1rem;
     text-align: center;
@@ -138,51 +164,35 @@ $claims = $stmt->fetchAll();
   <nav>
     <a href="admin_dashboard.php">Dashboard</a>
     <a href="manage_merit.php">Manage Merit</a>
+    <a href="reward_merit.php">Reward Merit</a>
     <a href="logout.php">Logout</a>
   </nav>
 </header>
 <main>
-    <h1>Manage Merit Claims</h1>
-
-    <?php if (count($claims) === 0): ?>
-      <p>No claims to review at the moment.</p>
-    <?php else: ?>
-    <table>
-        <thead>
-            <tr>
-                <th>Claim ID</th><th>Student</th><th>Matric ID</th><th>Event</th><th>Organizer</th><th>Status</th><th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($claims as $claim): ?>
-            <div class="container">
-            <tr>
-                <td><?= htmlspecialchars($claim['ClaimID']) ?></td>
-                <td><?= htmlspecialchars($claim['Name']) ?></td>
-                <td><?= htmlspecialchars($claim['MatricID']) ?></td>
-                <td><?= htmlspecialchars($claim['EventName']) ?></td>
-                <td><?= htmlspecialchars($claim['Organizer']) ?></td>
-                <td><?= htmlspecialchars($claim['Claim_Status']) ?></td>
-                <td>
-                    <?php if ($claim['Claim_Status'] === 'Submitted' || $claim['Claim_Status'] === 'Pending'): ?>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="claimID" value="<?= htmlspecialchars($claim['ClaimID']) ?>" />
-                            <button type="submit" name="approve">Approve</button>
-                        </form>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="claimID" value="<?= htmlspecialchars($claim['ClaimID']) ?>" />
-                            <button type="submit" name="reject" style="background-color: red;">Reject</button>
-                        </form>
-                    <?php else: ?>
-                        <em>Processed</em>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            </div>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-    <?php endif; ?>
+    <h1>Admin Dashboard</h1>
+     <section class="dashboard-summary">
+        <div class="summary-card">
+            <div class="summary-value"><?= $pendingClaimsCount + $submittedClaimsCount ?></div>
+            <div class="summary-label">Claims Awaiting Approval</div>
+            <a href="manage_merit.php">Review Claims</a>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value"><?= $approvedClaimsCount ?></div>
+            <div class="summary-label">Approved Claims</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value"><?= $rejectedClaimsCount ?></div>
+            <div class="summary-label">Rejected Claims</div>
+        </div>
+         <div class="summary-card">
+            <div class="summary-value"><?= $totalMembers ?></div>
+            <div class="summary-label">Total Members</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value"><?= $totalEvents ?></div>
+            <div class="summary-label">Total Events Registered</div>
+        </div>
+    </section>
 </main>
 </body>
 </html>
