@@ -1,224 +1,231 @@
-<?php 
-require_once 'db.php'; 
-require_once 'phpqrcode/qrlib.php'; // Include the QR Code library
+<?php
+require_once 'db.php';
 
-// Check if student_id is provided
-if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
-    die("Error: Student ID not provided.");
+if (!isset($_SESSION['UserID'])) {
+    header('Location: login.php');
+    exit;
+}
+$userID = $_SESSION['UserID'];
+$name = $_SESSION['Name'];
+$matricID = $_SESSION['MatricID'];
+
+try {
+    $stmt = $pdo->prepare("SELECT IFNULL(SUM(Marks),0) AS TotalMerits FROM merit WHERE UserID = ?");
+    $stmt->execute([$userID]);
+    $totalMerits = (int)$stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("
+        SELECT MONTH(Date) AS month, COUNT(MeritID) AS event_count
+        FROM merit WHERE UserID=? AND YEAR(Date)=YEAR(CURDATE())
+        GROUP BY MONTH(Date) ORDER BY MONTH(Date)
+    ");
+    $stmt->execute([$userID]);
+    $monthData = $stmt->fetchAll();
+
+    $monthlyCounts = array_fill(1, 12, 0);
+    foreach ($monthData as $row) {
+        $monthlyCounts[(int)$row['month']] = (int)$row['event_count'];
+    }
+
+} catch (Exception $e) {
+    exit("Error fetching merit data: " . htmlspecialchars($e->getMessage()));
 }
 
-$student_id = $_GET['student_id']; 
+$qrString = "MatricID: $matricID\nName: $name\nTotal Merits: $totalMerits";
 
-
-// Calculate total merit points
-$sql = "SELECT SUM(m.Merit_Point) AS total_merit 
-        FROM merit m 
-        JOIN merit_claim mc ON m.MeritID = mc.MeritID 
-        JOIN user u ON mc.UserID = u.UserID 
-        WHERE u.StudentID = '$student_id' AND mc.Claim_Status = 'Approved'";
-$result = $conn->query($sql);
-$row = $result->fetch_assoc();
-$total_merit = $row['total_merit'] ?? 0;
-
-//dummy value 
-$totalEvents = 0;
-  $upcomingEvents = 0;
-    $participationRange = "0";
-    $userName = "User's Name";
-
-// Get participation data (example: monthly data)
-$participationData = [];
-$labels = [];
-$sql = "SELECT MONTHNAME(mc.Submitted_Date) AS month, COUNT(*) AS total 
-        FROM merit_claim mc 
-        JOIN user u ON mc.UserID = u.UserID 
-        WHERE u.StudentID = ? AND mc.Claim_Status = 'Approved' 
-        GROUP BY MONTH(mc.Submitted_Date)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $student_id);
-$stmt->execute();
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-    $labels[] = $row['month'];
-    $participationData[] = $row['total'];
-}
-
-// Generate QR Code
-$qr_data = "Student ID: $student_id, Total Merit: " . ($row['total_merit'] ?? 0);
-$qr_file = "upload/qr_$student_id.png"; // Path to save the QR code image
-QRcode::png($qr_data, $qr_file, QR_ECLEVEL_L, 4); // Generate the QR code
+ob_start();
+include 'phpqrcode/qrlib.php';
+QRcode::png($qrString, null, QR_ECLEVEL_M, 4);
+$imageString = base64_encode(ob_get_contents());
+ob_end_clean();
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Student Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    .dashboard-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px;
-    }
-
-    .info-boxes {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-
-    .info-box {
-      border: 1px solid #ccc;
-      padding: 20px;
-      width: 250px;
-      text-align: center;
-      background: white;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-      border-radius: 8px;
-    }
-
-    .info-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .info-subtext {
-      color: #666;
-      font-size: 0.9em;
-      margin-bottom: 10px;
-    }
-
-    .info-value {
-      font-size: 2em;
-      font-weight: bold;
-    }
-
-    canvas {
-      max-width: 500px;
-      margin-top: 20px;
-    }
-
-    .qr-container {
-    margin-top: 30px;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard - MyPetakom</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #fff;
+    color: #4b5563;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    border-radius: 0.75rem;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #111827;
+  }
+  nav a {
+    margin-left: 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #111827;
+    text-decoration: none;
+  }
+  nav a:hover {
+    color: #2563eb;
+  }
+  main h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #111827;
+  }
+  main p.lead {
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+  .card {
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .metric-value {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+  .metric-label {
+    font-weight: 600;
+    color: #9ca3af;
+  }
+  .qr-container {
+    margin-top: 1rem;
     text-align: center;
-    }
-
-    .qr-container img {
-      width: 200px;
-      height: 200px;
-    }
-  </style>
+  }
+  .qr-container img {
+    margin-top: 1rem;
+    width: 160px;
+    height: 160px;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  }
+  main h2 {
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+  footer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-top: 6rem;
+    padding-bottom: 2rem;
+  }
+</style>
 </head>
 <body>
-   
-<div class="sidebar">
-    <img src="css/petakom_logo.png" alt="PETAKOM Logo">
-        <h2>MyPetakom</h2>
-        <ul>
-            <b> Student</a></b>
-            <li><a href="manage_merit.php">Manage Merit</a></li>
-            <li><a href="claim_merit.php">Merit Dashboard</a></li>
-        </ul>
-    </div>
+<header>
+  <div class="logo">MyPetakom</div>
+  <nav>
+    <a href="dashboard.php" aria-current="page">Dashboard</a>
+    <a href="claim_merit.php">Claim Merit</a>
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+      <a href="manage_merit.php">Manage Merit</a>
+    <?php endif; ?>
+    <a href="logout.php">Logout</a>
+  </nav>
+</header>
 
-    <div class="main">
-        <div class="header">
-            <h1>Merit Dashboard</h1>
-            <div class="profile">
-                <div class="profile-icon">👤</div>
-                <span><?php echo $userName; ?></span>
-                <button>Sign Out</button>
-            </div>
-        </div>
+<main>
+  <h1>Welcome, <?=htmlspecialchars($name)?></h1>
+  <p class="lead">Overview of your merits and activities for the academic year.</p>
 
-    <br>
-
-    <div class="dashboard-container">
-        <h2> MyPetakom Student Dashboard Overview </h2>
-        <h3>Insightful reports: Students activities summary</h3>
-        <br>
-
-           <!-- Total Merit Point -->
-        <div class="max-w-md mx-auto text-center my-6 p-4 rounded-2xl shadow-md border border-gray-300 bg-white">
-        <h2 class="text-lg font-bold text-gray-800">Total Merit Point</h2>
-        <p class="text-sm text-gray-600 mb-2">Approved merits earned</p>
-        <p class="text-3xl font-bold text-petakom-yellow"><?php echo $total_merit; ?></p>
-        </div>
-        <br>
-
-        <div class="info-boxes">
-        <div class="info-box">
-        <div class="info-title">Total Events</div>
-        <div class="info-subtext">All registered events</div>
-        <div class="info-value"><?php echo $totalEvents; ?></div>
+  <section class="metrics" aria-label="Key metrics">
+    <article class="card" aria-labelledby="total-merits-label">
+      <div id="total-merits-value" class="metric-value"><?=$totalMerits?></div>
+      <div id="total-merits-label" class="metric-label">Total Merit Points</div>
+    </article>
+    <article class="card" aria-labelledby="qr-code-label">
+      <div id="qr-code-label" class="metric-label" style="font-weight:700;">Your Merit QR Code</div>
+      <div class="qr-container" aria-describedby="qr-desc">
+        <img src="data:image/png;base64,<?=$imageString?>" alt="QR Code showing your merit summary" />
+        <p id="qr-desc" style="font-size:0.85rem; color:#9ca3af; margin-top:0.5rem;">Scan to view your merit summary</p>
       </div>
-      <div class="info-box">
-        <div class="info-title">Upcoming Events</div>
-        <div class="info-subtext">Event scheduled in the future</div>
-        <div class="info-value"><?php echo $upcomingEvents; ?></div>
-      </div>
-      <div class="info-box">
-        <div class="info-title">Participation</div>
-        <div class="info-subtext">Total student participated</div>
-        <div class="info-value"><?php echo $participationRange; ?></div>
-      </div>
-    </div>
-    </main>
+    </article>
+  </section>
 
-    <br> 
+  <section aria-label="Participation Trends">
+    <h2>Participation Trends (This Academic Year)</h2>
+    <canvas id="participationChart" width="800" height="400" role="img" aria-label="Participation trend chart"></canvas>
+  </section>
+</main>
 
-    <!-- Participation Trend Chart -->
-<div class="max-w-2xl mx-auto my-10 p-6 bg-white rounded-2xl shadow-md border border-gray-300 text-center">
-  <h2 class="text-lg font-bold text-gray-800 mb-2">Participation Trend</h2>
-  <p class="text-sm text-gray-600 mb-4">Student engagement from recent months</p>
-  <canvas id="participationChart"></canvas>
-    
-</div>
+<footer>
+  &copy; <?=date('Y')?> MyPetakom. All rights reserved.
+</footer>
 
-<br>
-
-     <!-- Display the QR Code -->
-    <div class="max-w-md mx-auto my-10 p-6 bg-white rounded-2xl shadow-md border border-gray-300 text-center">
-  <h2 class="text-lg font-bold text-gray-800 mb-2">Your QR Code</h2>
-  <p class="text-sm text-gray-600 mb-4">Scan to verify merit summary</p>
-  <img src="<?php echo $qr_file; ?>" alt="QR Code" class="mx-auto w-40 h-40 rounded-md border" />
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('participationChart').getContext('2d');
-const chart = new Chart(ctx, {
+  const ctx = document.getElementById('participationChart').getContext('2d');
+  const participationChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: <?php echo json_encode($labels); ?>,
-        datasets: [{
-            label: 'Participation by Month',
-            data: <?php echo json_encode($participationData); ?>,
-            backgroundColor: 'rgba(255, 206, 86, 0.2)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.3
-        }]
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [{
+        label: 'Events Participated',
+        data: <?=json_encode(array_values($monthlyCounts))?>,
+        borderColor: 'rgba(17,24,39,0.85)',
+        backgroundColor: 'rgba(17,24,39,0.1)',
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        borderWidth: 3,
+        fill: false,
+      }]
     },
     options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                precision: 0
-            }
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#6b7280' }, grid: { color:'#e5e7eb' }},
+        x: { ticks: { color:'#6b7280' }, grid: { color:'#f3f4f6' }},
+      },
+      plugins: {
+        legend: { labels: { color: '#374151', font: { weight:'600', size:14 } }},
+        tooltip: {
+          enabled: true,
+          mode: 'nearest',
+          intersect: false,
+          backgroundColor: '#111827',
+          titleColor: '#f9fafb',
+          bodyColor: '#f9fafb',
+          cornerRadius: 6,
+          caretSize: 8,
         }
+      },
+      interaction: { mode: 'nearest', intersect: false }
     }
-});
+  });
 </script>
-</div>
-</div>
-</div>
 </body>
 </html>
