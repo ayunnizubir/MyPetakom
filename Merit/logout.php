@@ -215,9 +215,6 @@ $_SESSION['logout_message'] = "You have been successfully logged out. Thank you 
             <a href="login.php" class="btn btn-primary">
                 🔐 Login Again
             </a>
-            <a href="index.php" class="btn btn-secondary">
-                🏠 Go to Homepage
-            </a>
         </div>
         
         <div class="security-note">
@@ -234,7 +231,7 @@ $_SESSION['logout_message'] = "You have been successfully logged out. Thank you 
 
     <script>
         // Auto-redirect countdown
-        let countdown = 10;
+        let countdown = 30;
         const countdownElement = document.getElementById('countdown');
         const redirectMessage = document.getElementById('redirect-message');
         

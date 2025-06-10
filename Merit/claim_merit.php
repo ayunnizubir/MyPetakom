@@ -125,7 +125,7 @@ $claims = $stmt->fetchAll();
 <html lang="en">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Claim Missing Merit - MyPetakom</title>
+<title>Claim Merit - MyPetakom</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
   body {
@@ -307,7 +307,7 @@ $claims = $stmt->fetchAll();
   </nav>
 </header>
 <main>
-<h1>Claim Missing Merit</h1>
+<h1>Claim Merit</h1>
 <?php if ($error): ?>
   <p class="message error" role="alert"><?=htmlspecialchars($error)?></p>
 <?php endif; ?>

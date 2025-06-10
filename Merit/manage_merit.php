@@ -161,7 +161,7 @@ $claims = $stmt->fetchAll();
 <header>
   <div class="logo">MyPetakom</div>
   <nav>
-    <a href="dashboard.php">Dashboard</a>
+    <a href="admin_dashboard.php">Dashboard</a>
     <a href="claim_merit.php">Claim Merit</a>
     <a href="manage_merit.php" aria-current="page">Manage Merit</a>
     <a href="logout.php">Logout</a>
