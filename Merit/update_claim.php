@@ -59,15 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_claim'])) {
             $stmt->execute([$eventName, $eventDate, $organizer, $position, $level, $filePath, $claimID, $userID]);
             $success = "Claim updated successfully.";
             // Refresh claim data
-            $stmt->execute([$eventName, 
-    $eventDate, 
-    $organizer, 
-    $position, 
-    $level, 
-    $filePath,     // or null if no file uploaded
-    $claimID, 
-    $userID
-]);
+            $stmt = $pdo->prepare("SELECT * FROM merit_claim WHERE ClaimID = ? AND UserID = ?");
+            $stmt->execute([$claimID, $userID]);
             $claim = $stmt->fetch();
         }
     }

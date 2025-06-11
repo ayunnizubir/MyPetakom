@@ -203,6 +203,15 @@ $claims = $stmt->fetchAll();
   </nav>
 </header>
 <main>
+  <?php if (isset($_GET['success']) && $_GET['success'] === 'deleted'): ?>
+  <div class="message success" id="successMessage">Claim successfully deleted.</div>
+  <script>
+    // Auto hide after 3 seconds
+    setTimeout(function() {
+      document.getElementById('successMessage').style.display = 'none';
+    }, 3000);
+  </script>
+  <?php endif; ?>
   <h1>My Merit Claims</h1>
 
   <?php if (count($claims) === 0): ?>
@@ -248,7 +257,7 @@ $claims = $stmt->fetchAll();
       <td data-label="Action">
         <?php if ($status === 'Pending'): ?>
           <a href="update_claim.php?id=<?=urlencode($c['ClaimID'])?>" style="margin-right:0.5rem;">Update</a>
-          <a href="view_claim.php?id=<?=urlencode($c['ClaimID'])?>" style="margin-right:0.5rem;">View</a>
+          <a href="view_form.php?id=<?=urlencode($c['ClaimID'])?>" style="margin-right:0.5rem;">View</a>
           <a href="delete_claim.php?id=<?=urlencode($c['ClaimID'])?>" onclick="return confirm('Are you sure you want to delete this claim?');" style="color:red;">Delete</a>
         <?php else: ?>
           <span style="color:#9ca3af;">No actions</span>

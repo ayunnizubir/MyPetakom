@@ -165,7 +165,8 @@ ob_end_clean();
 
   <section class="metrics" aria-label="Key metrics">
     <article class="card" aria-labelledby="total-merits-label">
-      <div id="total-merits-value" class="metric-value"><?=$totalMerits?></div>
+    <br> <br> <br>
+    <div id="total-merits-value" class="metric-value"><?=$totalMerits?></div>
       <div id="total-merits-label" class="metric-label">Total Merit Points</div>
     </article>
     <article class="card" aria-labelledby="qr-code-label">
@@ -178,7 +179,7 @@ ob_end_clean();
   </section>
 
   <section aria-label="Participation Trends">
-    <h2>Participation Trends (This Academic Year)</h2>
+    <h2>Your Participation Trends (This Academic Year)</h2>
     <canvas id="participationChart" width="800" height="400" role="img" aria-label="Participation trend chart"></canvas>
   </section>
 </main>
