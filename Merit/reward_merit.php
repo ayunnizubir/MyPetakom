@@ -1,46 +1,83 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 require_once 'db.php';
-// Check if user is logged in and is an admin
+
+// Check if the user is an admin
 if (!isset($_SESSION['UserID']) || $_SESSION['role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
+
 $error = '';
 $success = '';
-function calculateMerit($level, $position) {
-    $scores = [
-        'International' => ['Main Committee' => 100, 'Committee' => 70, 'Participant' => 50],
-        'National' => ['Main Committee' => 80, 'Committee' => 50, 'Participant' => 40],
-        'State' => ['Main Committee' => 60, 'Committee' => 40, 'Participant' => 30],
-        'District' => ['Main Committee' => 40, 'Committee' => 30, 'Participant' => 15],
-        'UMPSA' => ['Main Committee' => 30, 'Committee' => 20, 'Participant' => 5],
-    ];
-    return $scores[$level][$position] ?? 0;
-}
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
-    $matricID = trim($_POST['matricID'] ?? '');
-    $eventName = trim($_POST['eventName'] ?? '');
-    $eventDate = $_POST['eventDate'] ?? '';
-    $organizer = trim($_POST['organizer'] ?? '');
-    $position = $_POST['position'] ?? '';
-    $level = $_POST['level'] ?? '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reward_merit'])) {
+    $matricID = trim($_POST['studentID']);  // this is actually MatricID from form input
+    $eventName = trim($_POST['eventName']);
+    $eventDate = $_POST['eventDate'];
+    $organizer = trim($_POST['organizer']);
+    $position = $_POST['position'];
+    $level = $_POST['level'];
+    $filePath = '';
+
+    // Validate required inputs
     if (!$matricID || !$eventName || !$eventDate || !$organizer || !$position || !$level) {
         $error = 'Please fill in all fields.';
     } else {
         // Find UserID based on MatricID
         $stmt = $pdo->prepare("SELECT UserID FROM user WHERE MatricID = ?");
         $stmt->execute([$matricID]);
-        $userID = $stmt->fetchColumn();
-        if (!$userID) {
-            $error = 'Invalid Matric ID.';
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            $error = 'Matric ID not found in the system.';
         } else {
-            // Calculate merit points
-            $meritPoints = calculateMerit($level, $position);
-            // Insert the awarded merit into merit_claim table
-            $stmt = $pdo->prepare("INSERT INTO merit_claim (UserID, EventName, EventDate, Organizer, Position, Level, Claim_Status) VALUES (?, ?, ?, ?, ?, 'Awarded', ?)");
-            $stmt->execute([$userID, $eventName, $eventDate, $organizer, $position, $level]);
-            $success = "Merit awarded successfully to Matric ID: " . htmlspecialchars($matricID);
+            $userID = $user['UserID'];
+
+            // Handle file upload if provided
+            if (isset($_FILES['supportingDoc']) && $_FILES['supportingDoc']['error'] === UPLOAD_ERR_OK) {
+                $allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+                $fileType = $_FILES['supportingDoc']['type'];
+                if (!in_array($fileType, $allowedTypes)) {
+                    $error = 'Invalid file type.';
+                } else {
+                    $fileName = uniqid().'_'.basename($_FILES['supportingDoc']['name']);
+                    $uploadDir = 'uploads/';
+                    if (!file_exists($uploadDir)) mkdir($uploadDir, 0755, true);
+                    $filePath = $uploadDir . $fileName;
+                    if (!move_uploaded_file($_FILES['supportingDoc']['tmp_name'], $filePath)) {
+                        $error = 'Upload failed.';
+                    }
+                }
+            }
+
+            if (!$error) {
+                // Insert the merit claim into the database
+                $stmt = $pdo->prepare("INSERT INTO merit_claim 
+                (UserID, EventName, EventDate, Organizer, Position, Level, Supporting_Doc, Claim_Status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'Rewarded')");
+                
+                $stmt->execute([
+                    $userID,  // now correct UserID
+                    $eventName, 
+                    $eventDate, 
+                    $organizer, 
+                    $position, 
+                    $level, 
+                    $filePath
+                ]);
+
+                // Set success message in session
+                $_SESSION['success'] = "Merit rewarded successfully.";
+                
+                // Redirect to the rewarded list page
+                header('Location: rewarded_list.php');
+                exit;
+            }
         }
     }
 }
@@ -49,25 +86,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reward Merit - MyPetakom</title>
-    <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  <meta charset="UTF-8" />
+  <title>Reward Merit - MyPetakom</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
   body {
-    font-family:'Poppins', sans-serif;
-    background:#fff;
-    color:#4b5563;
-    max-width:1200px;
+    font-family: 'Poppins', sans-serif;
+    background: #fff;
+    color: #4b5563;
+    max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
   }
   header {
-    position: sticky; top:0;
-    background:#fff;
-    padding:1rem 2rem;
+    position: sticky; top: 0;
+    background: #fff;
+    padding: 1rem 2rem;
     display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     border-radius: 0.75rem;
     margin-bottom: 2rem;
   }
@@ -96,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
     background: #f9fafb;
     padding: 1.5rem 2rem;
     border-radius: 0.75rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     margin-bottom: 3rem;
   }
   label {
@@ -136,89 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
   }
   .error { background: #fee2e2; color: #b91c1c; }
   .success { background: #d1fae5; color: #065f46; }
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 0.5rem;
-  }
-  th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-  }
-  th {
-    font-weight: 700;
-    font-size: 1rem;
-    color: #111827;
-  }
-  td {
-    background: #f9fafb;
-    border-radius: 0.75rem;
-    vertical-align: middle;
-  }
-  td.actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  .badge {
-    padding: 0.3rem 0.6rem;
-    border-radius: 9999px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: white;
-    display: inline-block;
-  }
-  .badge.Pending { background-color: #f97316; }
-  .badge.Submitted { background-color: #2563eb; }
-  .badge.Approved { background-color: #16a34a; }
-  .badge.Rejected { background-color: #dc2626; }
-  form.inline-form {
-    display: inline-flex;
-    gap: 0.3rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  input.inline-input {
-    width: 110px;
-    font-size: 0.9rem;
-    padding: 0.3rem 0.5rem;
-  }
-  select.inline-select {
-    font-size: 0.9rem;
-    padding: 0.3rem 0.5rem;
-  }
-  @media (max-width: 768px) {
-    table, thead, tbody, th, td, tr {
-      display: block;
-    }
-    thead tr {
-      display: none;
-    }
-    tr {
-      margin-bottom: 1rem;
-      border-radius: 0.75rem;
-      background: #f9fafb;
-      padding: 1rem;
-    }
-    td {
-      text-align: right;
-      position: relative;
-      padding-left: 50%;
-    }
-    td::before {
-      content: attr(data-label);
-      position: absolute;
-      left: 1rem;
-      top: 0.75rem;
-      color: #111827;
-      font-weight: 600;
-    }
-    td.actions {
-      justify-content: center;
-      text-align: center;
-    }
-  }
-</style>
+  </style>
 </head>
 <body>
 <header>
@@ -229,51 +183,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_claimed'])) {
     <a href="logout.php">Logout</a>
   </nav>
 </header>
+
 <main>
-    <h1>Reward Merit</h1>
-    <?php if ($error): ?>
-        <p class="message error" role="alert"><?= htmlspecialchars($error) ?></p>
-    <?php endif; ?>
-    <?php if ($success): ?>
-        <p class="message success" role="alert"><?= htmlspecialchars($success) ?></p>
-    <?php endif; ?>
+<h1>Reward Merit</h1>
 
-    <form method="post" class="card" aria-label="Reward merit to student">
-        <label for="matricID">Matric ID</label>
-        <input type="text" name="matricID" id="matricID" required />
+<?php if ($error): ?>
+  <p class="message error"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
+<?php if ($success): ?>
+  <p class="message success"><?= htmlspecialchars($success) ?></p>
+<?php endif; ?>
 
-        <label for="eventName">Event Name</label>
-        <input type="text" name="eventName" id="eventName" required />
+<form method="post" enctype="multipart/form-data" class="card">
+  <label for="studentID">Student ID</label>
+  <input type="text" name="studentID" id="studentID" required />
 
-        <label for="eventDate">Event Date</label>
-        <input type="date" name="eventDate" id="eventDate" required />
+  <label for="eventName">Event Name</label>
+  <input type="text" name="eventName" id="eventName" required />
 
-        <label for="organizer">Organizer</label>
-        <input type="text" name="organizer" id="organizer" required />
+  <label for="eventDate">Event Date</label>
+  <input type="date" name="eventDate" id="eventDate" required />
 
-        <label for="position">Position</label>
-        <select id="position" name="position" required>
-            <option value="" disabled selected>Select position</option>
-            <option value="Main Committee">Main Committee</option>
-            <option value="Committee">Committee</option>
-            <option value="Participant">Participant</option>
-        </select>
+  <label for="organizer">Organizer</label>
+  <input type="text" name="organizer" id="organizer" required />
 
-        <label for="level">Event Level</label>
-        <select id="level" name="level" required>
-            <option value="" disabled selected>Select level</option>
-            <option value="International">International</option>
-            <option value="National">National</option>
-            <option value="State">State</option>
-            <option value="District">District</option>
-            <option value="UMPSA">UMPSA</option>
-        </select>
+  <label for="position">Position</label>
+  <select name="position" id="position" required>
+    <option value="Main Committee">Main Committee</option>
+    <option value="Committee">Committee</option>
+    <option value="Participant">Participant</option>
+  </select>
 
-        <label for="supportingDoc">Supporting Document (PDF, JPG, PNG)</label>
-        <input type="file" id="supportingDoc" name="supportingDoc" accept=".pdf,image/jpeg,image/png" required />
+  <label for="level">Event Level</label>
+  <select name="level" id="level" required>
+    <option value="International">International</option>
+    <option value="National">National</option>
+    <option value="State">State</option>
+    <option value="District">District</option>
+    <option value="UMPSA">UMPSA</option>
+  </select>
 
-        <button type="submit" name="reward_merit">Reward Merit</button>
-    </form>
+  <label for="supportingDoc">Supporting Document</label>
+  <input type="file" name="supportingDoc" id="supportingDoc" accept=".pdf,image/jpeg,image/png" required />
+
+  <button type="submit">Reward Merit</button>
+</form>
+<a href="rewarded_list.php">View Rewarded Merit List</a>
 </main>
 </body>
 </html>

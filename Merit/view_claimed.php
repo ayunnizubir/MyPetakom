@@ -212,7 +212,7 @@ $claims = $stmt->fetchAll();
     }, 3000);
   </script>
   <?php endif; ?>
-  <h1>My Merit Claims</h1>
+  <h1>Claimed Merits</h1>
 
   <?php if (count($claims) === 0): ?>
     <p>No merit claims submitted yet.</p>

@@ -315,7 +315,7 @@ $isView = ($mode === 'view');
   <?php endif; ?>
 </form>
 
-<p><a href="view_claimed.php" style="color:#2563eb; font-weight:600;">&larr; Back to My Claims</a></p>
+<p><a href="view_claimed.php" style="color:#2563eb; font-weight:600;">&larr; Back to Claimed Merit</a></p>
 </main>
 </body>
 </html>
