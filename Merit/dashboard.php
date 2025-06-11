@@ -41,67 +41,123 @@ QRcode::png($qrString, null, QR_ECLEVEL_M, 4);
 $imageString = base64_encode(ob_get_contents());
 ob_end_clean();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dashboard - MyPetakom</title>
+<link rel="stylesheet" href="styles.css">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-  body {
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
     background: #fff;
     color: #4b5563;
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-  }
-  header {
-    position: sticky;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar style */
+.sidebar {
+    position: fixed;
     top: 0;
-    background: #fff;
-    padding: 1rem 2rem;
+    left: 0;
+    width: 210px;
+    height: 100%;
+    background:rgb(219, 224, 226);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    padding: 20px;
+    z-index: 1000;
+}
+.sidebar img {
+    width: 100%;
+    max-width: 150px;
+    display: block;
+    margin: 0 auto 20px;
+}
+.sidebar h2 {
+    text-align: center;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 20px;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar ul li {
+    margin: 15px 0;
+    font-weight: 600;
+}
+.sidebar ul li a {
+    text-decoration: none;
+    color: #111827;
+}
+.sidebar ul li a:hover {
+    color: #2563eb;
+}
+
+/* Header style */
+header {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    height: 80px;
+    background:rgb(69, 238, 227);
+    padding: 0 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
-    border-radius: 0.75rem;
-  }
-  .logo {
+    z-index: 1000;
+}
+header .logo {
     font-weight: 700;
     font-size: 1.5rem;
     color: #111827;
-  }
-  nav a {
+}
+header nav a {
     margin-left: 1.5rem;
     font-weight: 600;
     font-size: 0.95rem;
     color: #111827;
     text-decoration: none;
-  }
-  nav a:hover {
+}
+header nav a:hover {
     color: #2563eb;
-  }
-  main h1 {
+}
+
+/* Main content */
+main {
+    margin-left: 250px;
+    padding: 120px 30px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+main h1 {
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
     color: #111827;
-  }
-  main p.lead {
+}
+main p.lead {
     font-size: 1.125rem;
     margin-bottom: 3rem;
-  }
-  .metrics {
+}
+
+.metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     margin-bottom: 3rem;
-  }
-  .card {
+}
+.card {
     background: #f9fafb;
     border-radius: 0.75rem;
     padding: 2rem;
@@ -109,53 +165,61 @@ ob_end_clean();
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-  .metric-value {
+}
+.metric-value {
     font-size: 3rem;
     font-weight: 800;
     color: #111827;
     margin-bottom: 0.25rem;
-  }
-  .metric-label {
+}
+.metric-label {
     font-weight: 600;
     color: #9ca3af;
-  }
-  .qr-container {
+}
+.qr-container {
     margin-top: 1rem;
     text-align: center;
-  }
-  .qr-container img {
+}
+.qr-container img {
     margin-top: 1rem;
     width: 160px;
     height: 160px;
     border-radius: 0.75rem;
     box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  }
-  main h2 {
+}
+main h2 {
     font-weight: 700;
     font-size: 1.75rem;
     color: #111827;
     margin-bottom: 1rem;
-  }
-  footer {
+}
+footer {
     text-align: center;
+    padding: 15px 0;
     color: #9ca3af;
     font-size: 0.9rem;
-    margin-top: 6rem;
-    padding-bottom: 2rem;
-  }
+    margin-top: auto;
+    
+}
 </style>
 </head>
+
 <body>
+<div class="sidebar">
+    <img src="petakom_logo.png" alt="PETAKOM Logo">
+    <h2>MyPetakom</h2>
+    <ul>
+        <li><b>STUDENT</b></li>
+        <li><a href="claim_merit.php">Claim Merit</a></li>
+        <li><a href="view_claimed.php">View Claimed Merit</a></li>
+    </ul>
+</div>
+
 <header>
-  <div class="logo">MyPetakom</div>
+  <div class="logo">MYPETAKOM</div>
   <nav>
-    <a href="claim_merit.php">Claim Merit</a>
-    <a href="view_claimed.php">View Claimed Merit</a>
-    <?php if ($_SESSION['role'] === 'admin'): ?>
-      <a href="manage_merit.php">Manage Merit</a>
-    <?php endif; ?>
-    <a href="logout.php">Logout</a>
+    <span style="font-weight:600; margin-right:10px;"><?=htmlspecialchars($name)?></span>
+    <a href="logout.php" style="border: 1px solid #000; padding: 5px 10px; text-decoration: none;">Log Out</a>
   </nav>
 </header>
 
@@ -163,10 +227,10 @@ ob_end_clean();
   <h1>Welcome, <?=htmlspecialchars($name)?></h1>
   <p class="lead">Overview of your merits and activities for the academic year.</p>
 
-  <section class="metrics" aria-label="Key metrics">
+  <section class="metrics" aria-label="Key metrics" style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;">
+
     <article class="card" aria-labelledby="total-merits-label">
-    <br> <br> <br>
-    <div id="total-merits-value" class="metric-value"><?=$totalMerits?></div>
+      <div id="total-merits-value" class="metric-value"><?=$totalMerits?></div>
       <div id="total-merits-label" class="metric-label">Total Merit Points</div>
     </article>
     <article class="card" aria-labelledby="qr-code-label">
